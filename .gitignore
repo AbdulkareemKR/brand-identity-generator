@@ -1,0 +1,6 @@
+skill/scripts/__pycache__/
+.DS_Store
+*.tmp.pdf
+examples/terra/mockups/*.png
+examples/terra/pages/
+examples/terra/gen_terra.py

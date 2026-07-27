@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brand Identity Generator — AI Brand Guidelines, Brand Book & Logo System (Free, Open Source)</title>
+<meta name="description" content="Generate a complete brand identity with AI: brand guidelines deck, logo system, color palette, typography, voice and real product mockups. Free open source Claude Code skill. Upload your logo or start from scratch.">
+<link rel="canonical" href="https://abdulkareemkr.github.io/brand-identity-generator/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Brand Identity Generator — AI Brand Guidelines & Brand Book">
+<meta property="og:description" content="A free open source skill that designs a complete brand identity: guidelines deck, logo system, colors, typography and real AI product mockups.">
+<meta property="og:image" content="https://abdulkareemkr.github.io/brand-identity-generator/assets/og-image.jpg">
+<meta property="og:url" content="https://abdulkareemkr.github.io/brand-identity-generator/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Brand Identity Generator — AI Brand Guidelines & Brand Book">
+<meta name="twitter:description" content="Free open source skill that designs complete brand identities: guidelines deck, logo system, colors, typography, real AI mockups.">
+<meta name="twitter:image" content="https://abdulkareemkr.github.io/brand-identity-generator/assets/og-image.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Crect width='240' height='240' rx='56' fill='%23C4633C'/%3E%3Cpath d='M52 164 Q120 104 188 164' fill='none' stroke='%23F6EEE3' stroke-width='18' stroke-linecap='round'/%3E%3Ccircle cx='120' cy='80' r='14' fill='%23F6EEE3'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Brand Identity Generator","applicationCategory":"DesignApplication","operatingSystem":"macOS, Linux, Windows","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Open source Claude Code skill that generates complete brand identities: brand guidelines decks, logo systems, color palettes, typography and AI product mockups.","url":"https://abdulkareemkr.github.io/brand-identity-generator/","softwareHelp":"https://github.com/AbdulkareemKR/brand-identity-generator","license":"https://opensource.org/license/mit"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What does the Brand Identity Generator create?","acceptedAnswer":{"@type":"Answer","text":"A complete brand guidelines deck (10 to 45 slides, 16:9, HTML and PDF) covering logo system, color palette with HEX RGB CMYK, typography pairing, brand voice and values, photography direction, and real AI-generated product mockups such as cups, packaging, business cards, storefronts and billboards with your actual logo composited in."}},
+{"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The skill is open source under the MIT license. The deck itself renders free with headless Chrome. AI photo mockups optionally use your own Gemini or OpenAI API keys."}},
+{"@type":"Question","name":"Can I use my existing logo?","acceptedAnswer":{"@type":"Answer","text":"Yes. Upload or provide your logo and the skill builds the whole system around it: it samples the palette from your logo pixels, creates white and dark variants, isolates the symbol, and never redraws your letters."}},
+{"@type":"Question","name":"Does it support Arabic or bilingual brands?","acceptedAnswer":{"@type":"Answer","text":"Yes. The skill builds right-to-left decks with proper Arabic typography and can produce bilingual logo lockups and fully localized guideline documents."}},
+{"@type":"Question","name":"What do I need to run it?","acceptedAnswer":{"@type":"Answer","text":"Claude Code (free CLI from Anthropic), Google Chrome for the PDF export, and Python 3 with Pillow. Optional: a Gemini API key for logo-bearing product mockups and an OpenAI key for illustrations and patterns."}}]}
+</script>
+<style>
+:root{
+  --cream:#F6EEE3; --cream2:#EFE3D2; --ink:#2E201A; --ink-soft:#5C4A3D;
+  --terra:#C4633C; --terra-deep:#A34E2D; --clay:#E2A583; --sage:#7E8C6F;
+  --line:#E0D2BE;
+}
+@import url('');
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Karla',sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.fr{font-family:'Fraunces',serif}
+a{color:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--terra)}
+.eyebrow::before{content:'';width:34px;height:3px;background:var(--terra);border-radius:2px}
+.secnum{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(64px,9vw,120px);line-height:1;color:var(--cream2);user-select:none}
+section{padding:clamp(56px,9vw,120px) 0;position:relative}
+
+/* header */
+header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--cream) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px clamp(20px,4vw,48px);max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em;text-decoration:none}
+.brand svg{width:30px;height:30px}
+.nav a.gh{text-decoration:none;font-weight:700;font-size:14px;border:2px solid var(--ink);padding:8px 18px;border-radius:999px;transition:background .2s,color .2s}
+.nav a.gh:hover{background:var(--ink);color:var(--cream)}
+
+/* hero */
+.hero{padding:clamp(64px,10vw,140px) 0 0}
+.hero h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(44px,7.4vw,96px);line-height:1.02;letter-spacing:-.01em;max-width:11ch}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero p.lead{font-size:clamp(17px,1.6vw,21px);color:var(--ink-soft);max-width:52ch;margin:28px 0 36px}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.btn{font-weight:700;font-size:16px;text-decoration:none;padding:15px 30px;border-radius:999px;transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s}
+.btn.primary{background:var(--terra);color:var(--cream)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 26px -10px var(--terra)}
+.btn.ghost{border:2px solid var(--ink);color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--cream)}
+.fan{position:relative;margin-top:clamp(48px,7vw,90px);height:clamp(240px,36vw,460px);overflow:hidden}
+.fan img{position:absolute;width:clamp(320px,44vw,560px);border-radius:10px;box-shadow:0 24px 60px -24px rgba(46,32,26,.45);border:1px solid var(--line)}
+.fan img:nth-child(1){left:2%;bottom:-12%;transform:rotate(-5deg)}
+.fan img:nth-child(2){left:50%;bottom:-6%;transform:translateX(-50%) rotate(1.5deg);z-index:2}
+.fan img:nth-child(3){right:2%;bottom:-14%;transform:rotate(4.5deg)}
+
+/* ticker */
+.ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:14px 0;background:var(--cream2)}
+.ticker .track{display:flex;gap:48px;white-space:nowrap;animation:tick 30s linear infinite;font-weight:700;letter-spacing:.14em;font-size:13px;text-transform:uppercase;color:var(--ink-soft)}
+.ticker span::before{content:'●';color:var(--terra);margin-right:48px;font-size:9px;vertical-align:2px}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker .track{animation:none}.reveal{opacity:1!important;transform:none!important}}
+
+/* deliverables */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(24px,4vw,64px);align-items:start}
+.dl{border-top:2px solid var(--ink);padding-top:18px}
+.dl b{font-family:'Fraunces',serif;font-size:22px;font-weight:600;display:block;margin-bottom:6px}
+.dl p{color:var(--ink-soft);font-size:15.5px}
+h2.title{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(32px,4.6vw,56px);line-height:1.08;margin:16px 0 20px;max-width:20ch}
+
+/* gallery */
+.gal{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:42px}
+.gal figure{border-radius:12px;overflow:hidden;position:relative;margin:0}
+.gal img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.gal figure:hover img{transform:scale(1.035)}
+.gal figcaption{position:absolute;left:14px;bottom:12px;background:var(--cream);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:999px}
+.g1{grid-column:span 7}.g2{grid-column:span 5}.g3{grid-column:span 5}.g4{grid-column:span 7}
+.g5{grid-column:span 4}.g6{grid-column:span 4}.g7{grid-column:span 4}
+@media(max-width:760px){.gal figure{grid-column:span 12!important}}
+
+/* steps */
+.steps{counter-reset:step;display:grid;gap:0;margin-top:30px}
+.step{display:grid;grid-template-columns:clamp(64px,10vw,120px) 1fr;gap:clamp(16px,3vw,40px);padding:clamp(24px,3.4vw,40px) 0;border-bottom:1px solid var(--line);align-items:baseline}
+.step::before{counter-increment:step;content:'0' counter(step);font-family:'Fraunces',serif;font-weight:900;font-size:clamp(36px,5vw,64px);color:var(--clay);line-height:1}
+.step b{font-family:'Fraunces',serif;font-size:clamp(20px,2.4vw,28px);font-weight:600;display:block;margin-bottom:6px}
+.step p{color:var(--ink-soft);max-width:62ch}
+
+/* builder */
+#builder{background:var(--ink);color:var(--cream);border-radius:28px;margin:0 clamp(8px,2vw,24px)}
+#builder .wrap{padding-top:clamp(48px,7vw,80px);padding-bottom:clamp(48px,7vw,80px)}
+#builder .eyebrow{color:var(--clay)}#builder .eyebrow::before{background:var(--clay)}
+#builder h2.title{color:var(--cream)}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,56px);margin-top:36px}
+@media(max-width:880px){.bgrid{grid-template-columns:1fr}}
+.field{margin-bottom:26px}
+.field label{display:block;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);margin-bottom:10px}
+.field input[type=text]{width:100%;background:transparent;border:0;border-bottom:2px solid #55423A;color:var(--cream);font-size:20px;font-family:'Karla',sans-serif;padding:8px 2px;outline:none;transition:border-color .2s}
+.field input[type=text]:focus{border-color:var(--clay)}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:1.5px solid #55423A;color:var(--cream);background:transparent;font-family:'Karla',sans-serif;font-size:14.5px;font-weight:600;padding:9px 18px;border-radius:999px;cursor:pointer;transition:all .18s}
+.chip[aria-pressed=true]{background:var(--terra);border-color:var(--terra)}
+.chip:hover{border-color:var(--clay)}
+.drop{border:2px dashed #55423A;border-radius:16px;padding:26px;text-align:center;cursor:pointer;transition:border-color .2s;font-size:15px;color:#B9A897}
+.drop:hover,.drop.on{border-color:var(--clay);color:var(--cream)}
+.drop input{display:none}
+.logoPrev{display:none;align-items:center;gap:18px;margin-top:16px}
+.logoPrev img{width:84px;height:84px;object-fit:contain;background:var(--cream);border-radius:12px;padding:8px}
+.sw{display:flex;gap:8px}
+.sw i{width:34px;height:34px;border-radius:8px;display:block;border:1px solid #55423A}
+.sw span{font-size:11px;display:block;text-align:center;margin-top:5px;color:#B9A897}
+.out{background:#241914;border:1px solid #55423A;border-radius:16px;padding:22px;position:relative;min-height:220px}
+.out pre{white-space:pre-wrap;font-size:13.5px;line-height:1.6;color:#EADFCE;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:6px}
+.out .lbl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--clay)}
+.copy{position:absolute;top:16px;right:16px;background:var(--terra);border:0;color:var(--cream);font-weight:700;font-family:'Karla',sans-serif;font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer;transition:transform .18s}
+.copy:hover{transform:translateY(-1px)}
+.copy.ok{background:var(--sage)}
+
+/* keys + faq */
+details{border-bottom:1px solid var(--line);padding:20px 0}
+details summary{cursor:pointer;font-family:'Fraunces',serif;font-weight:600;font-size:clamp(18px,2vw,22px);list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::after{content:'+';font-size:26px;color:var(--terra);transition:transform .25s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--ink-soft);margin-top:12px;max-width:70ch}
+code.k{background:var(--cream2);border:1px solid var(--line);padding:2px 8px;border-radius:6px;font-size:.9em}
+
+footer{border-top:1px solid var(--line);padding:40px 0 60px;color:var(--ink-soft);font-size:14.5px}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.in{opacity:1;transform:none}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,600&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 240 240" aria-hidden="true"><rect width="240" height="240" rx="56" fill="#C4633C"/><path d="M52 164 Q120 104 188 164" fill="none" stroke="#F6EEE3" stroke-width="18" stroke-linecap="round"/><circle cx="120" cy="80" r="14" fill="#F6EEE3"/></svg>
+      brand identity generator
+    </a>
+    <a class="gh" href="https://github.com/AbdulkareemKR/brand-identity-generator">GitHub ↗</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero wrap" aria-label="Intro">
+  <p class="eyebrow">A free, open source Claude Code skill</p>
+  <h1>Ship a <em>brand book,</em> not a moodboard.</h1>
+  <p class="lead">One brief in, a complete identity out: logo system, color palette, typography, brand voice, and real AI product mockups — assembled into an agency grade guidelines deck you can hand to anyone.</p>
+  <div class="cta">
+    <a class="btn primary" href="#builder">Build your brief</a>
+    <a class="btn ghost" href="https://github.com/AbdulkareemKR/brand-identity-generator#install">Install the skill</a>
+  </div>
+  <div class="fan" aria-hidden="true">
+    <img src="assets/pages/p04.jpg" alt="" loading="eager">
+    <img src="assets/pages/p01.jpg" alt="" loading="eager">
+    <img src="assets/pages/p05.jpg" alt="" loading="eager">
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true"><div class="track">
+  <span>Brand guidelines</span><span>Logo system</span><span>Color palette</span><span>Typography</span><span>Brand voice</span><span>Real mockups</span><span>Arabic + RTL</span><span>PDF export</span>
+  <span>Brand guidelines</span><span>Logo system</span><span>Color palette</span><span>Typography</span><span>Brand voice</span><span>Real mockups</span><span>Arabic + RTL</span><span>PDF export</span>
+</div></div>
+
+<section class="wrap reveal" id="what">
+  <p class="eyebrow">What you get</p>
+  <h2 class="title">Everything a design agency would charge thousands for.</h2>
+  <div class="grid2">
+    <div class="dl"><b>Guidelines deck</b><p>10 to 45 landscape slides as one clean HTML file, exported to a print ready PDF. Cover, contents, dark dividers, page numbers, the whole ritual.</p></div>
+    <div class="dl"><b>Logo system</b><p>Wordmark, symbol and app badge with white and dark variants, clear space rules and misuse examples. Bring your own logo or get 6 to 8 designed options.</p></div>
+    <div class="dl"><b>Color and type</b><p>A palette with roles and HEX, RGB and CMYK values, plus a display and body pairing with specimens. Bilingual and Arabic script support included.</p></div>
+    <div class="dl"><b>Real mockups</b><p>Cups, packaging, business cards, uniforms, storefronts and billboards photographed by AI with your actual logo composited in. Never redrawn, never garbled.</p></div>
+  </div>
+</section>
+
+<section class="wrap reveal" id="gallery">
+  <p class="eyebrow">Made by the skill</p>
+  <h2 class="title">Meet terra, a demo brand built start to finish in one session.</h2>
+  <div class="gal">
+    <figure class="g1"><img src="assets/storefront.jpg" alt="Terra cafe storefront mockup with dimensional logo sign" loading="lazy"><figcaption>Storefront</figcaption></figure>
+    <figure class="g2"><img src="assets/cup.jpg" alt="Terra takeaway coffee cup mockup" loading="lazy"><figcaption>Packaging</figcaption></figure>
+    <figure class="g3"><img src="assets/bag.jpg" alt="Terra coffee bag mockup" loading="lazy"><figcaption>Retail pouch</figcaption></figure>
+    <figure class="g4"><img src="assets/pages/p03.jpg" alt="Logo slide from the Terra brand guidelines deck" loading="lazy"><figcaption>Logo slide</figcaption></figure>
+    <figure class="g5"><img src="assets/pages/p04.jpg" alt="Color system slide" loading="lazy"><figcaption>Colors</figcaption></figure>
+    <figure class="g6"><img src="assets/pages/p05.jpg" alt="Typography slide" loading="lazy"><figcaption>Type</figcaption></figure>
+    <figure class="g7"><img src="assets/pages/p06.jpg" alt="Voice and values slide" loading="lazy"><figcaption>Voice</figcaption></figure>
+  </div>
+</section>
+
+<section class="wrap reveal" id="how">
+  <p class="eyebrow">How it works</p>
+  <h2 class="title">Four steps from nothing to a finished identity.</h2>
+  <div class="steps">
+    <div class="step"><div><b>Brief it</b><p>Tell Claude the brand name, market, audience and vibe, or compose it with the builder below. Have a logo? Hand it over and it stays untouched.</p></div></div>
+    <div class="step"><div><b>Lock the foundations</b><p>The skill samples or designs the palette, picks the type pairing and confirms the logo direction with you before building thirty plus slides. Reversing later is expensive, so it asks first.</p></div></div>
+    <div class="step"><div><b>Generate real mockups</b><p>Your logo is passed to the image model as a reference so products carry the genuine mark. Guard prompts block redrawn letters and invented gibberish text.</p></div></div>
+    <div class="step"><div><b>Review and export</b><p>The deck prints to PDF through headless Chrome, then every single page is rasterized and visually inspected before it reaches you.</p></div></div>
+  </div>
+</section>
+
+<section id="builder" class="reveal" aria-label="Brief builder">
+  <div class="wrap">
+    <p class="eyebrow">Brief builder</p>
+    <h2 class="title">Compose your brief. Copy. Paste into Claude Code.</h2>
+    <div class="bgrid">
+      <div>
+        <div class="field">
+          <label for="bname">Brand name</label>
+          <input type="text" id="bname" placeholder="e.g. terra" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="bwhat">What it is</label>
+          <input type="text" id="bwhat" placeholder="e.g. specialty coffee roastery in Riyadh" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Theme</label>
+          <div class="chips" id="themes" role="group" aria-label="Theme options">
+            <button class="chip" aria-pressed="false">Earthy organic</button>
+            <button class="chip" aria-pressed="false">Pastel kawaii</button>
+            <button class="chip" aria-pressed="false">Luxury minimal</button>
+            <button class="chip" aria-pressed="false">Bold tech</button>
+            <button class="chip" aria-pressed="false">Playful retro</button>
+            <button class="chip" aria-pressed="false">Editorial calm</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Language</label>
+          <div class="chips" id="langs" role="group" aria-label="Language options">
+            <button class="chip" aria-pressed="true">English</button>
+            <button class="chip" aria-pressed="false">Arabic</button>
+            <button class="chip" aria-pressed="false">Bilingual</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Logo</label>
+          <label class="drop" id="drop">Drop your logo here or click to choose — it never leaves your browser. We sample its palette on the spot.<input type="file" id="file" accept="image/*"></label>
+          <div class="logoPrev" id="prev">
+            <img id="prevImg" alt="Your uploaded logo preview">
+            <div><div class="lbl" style="font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--clay)">SAMPLED PALETTE</div><div class="sw" id="sw" style="margin-top:8px"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="out">
+          <span class="lbl">Your brief</span>
+          <button class="copy" id="copyBrief">Copy</button>
+          <pre id="brief">Fill the form and your brief assembles here, live.</pre>
+        </div>
+        <div class="out" style="margin-top:18px;min-height:0">
+          <span class="lbl">Install once</span>
+          <button class="copy" id="copyInstall">Copy</button>
+          <pre>git clone https://github.com/AbdulkareemKR/brand-identity-generator.git ~/.claude/skills/brand-identity</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap reveal" id="faq">
+  <p class="eyebrow">Questions</p>
+  <h2 class="title">Asked often.</h2>
+  <details open><summary>What does it actually create?</summary><p>A complete brand guidelines deck: logo system with variants and rules, a full color system with HEX, RGB and CMYK, a typography pairing with specimens, voice and values, photography direction, and real AI photographed product mockups, all exported to PDF.</p></details>
+  <details><summary>Is it free?</summary><p>Yes, MIT licensed. The deck renders free with headless Chrome. The optional photo mockups run on your own keys: <code class="k">GEMINI_API_KEY</code> for logo bearing products and <code class="k">OPENAI_API_KEY</code> for illustrations and patterns.</p></details>
+  <details><summary>Can I use my existing logo?</summary><p>Yes, and that is the most common mode. The skill samples the palette from your logo pixels, builds white and dark variants, isolates the symbol for badges, and never redraws your letters.</p></details>
+  <details><summary>Does it speak Arabic?</summary><p>Yes. Right to left decks with proper Arabic typography, bilingual lockups and fully localized guidelines are built in.</p></details>
+  <details><summary>What do I need?</summary><p><a href="https://claude.com/claude-code">Claude Code</a>, Google Chrome and Python 3 with Pillow. That is the whole stack.</p></details>
+</section>
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <span>Built by <a href="https://github.com/AbdulkareemKR">Abdulkareem Alramlawi</a> · MIT license</span>
+    <span><a href="https://github.com/AbdulkareemKR/brand-identity-generator">Source on GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+// chips: themes multi-select, langs single-select
+document.querySelectorAll('#themes .chip').forEach(c=>c.addEventListener('click',()=>{c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')!=='true');build()}));
+document.querySelectorAll('#langs .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#langs .chip').forEach(x=>x.setAttribute('aria-pressed','false'));c.setAttribute('aria-pressed','true');build()}));
+['bname','bwhat'].forEach(id=>document.getElementById(id).addEventListener('input',build));
+
+// logo upload + client-side palette sampling
+const drop=document.getElementById('drop'),file=document.getElementById('file');
+let palette=[],hasLogo=false;
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('on')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('on'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('on');if(e.dataTransfer.files[0])load(e.dataTransfer.files[0])});
+file.addEventListener('change',()=>file.files[0]&&load(file.files[0]));
+function load(f){
+  const url=URL.createObjectURL(f), img=new Image();
+  img.onload=()=>{
+    document.getElementById('prevImg').src=url;
+    document.getElementById('prev').style.display='flex';
+    const cv=document.createElement('canvas');cv.width=cv.height=64;
+    const cx=cv.getContext('2d');cx.drawImage(img,0,0,64,64);
+    const d=cx.getImageData(0,0,64,64).data,count={};
+    for(let i=0;i<d.length;i+=4){
+      const a=d[i+3];if(a<128)continue;
+      const r=d[i]&0xF0,g=d[i+1]&0xF0,b=d[i+2]&0xF0;
+      if(r>230&&g>230&&b>230)continue; // skip near white
+      const k=(r<<16)|(g<<8)|b;count[k]=(count[k]||0)+1;
+    }
+    palette=Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,5)
+      .map(([k])=>'#'+(+k).toString(16).padStart(6,'0').toUpperCase());
+    const sw=document.getElementById('sw');sw.innerHTML='';
+    palette.forEach(h=>{const o=document.createElement('div');o.innerHTML=`<i style="background:${h}"></i><span>${h}</span>`;sw.appendChild(o)});
+    hasLogo=true;build();
+  };
+  img.src=url;
+}
+function build(){
+  const name=document.getElementById('bname').value.trim();
+  const what=document.getElementById('bwhat').value.trim();
+  const themes=[...document.querySelectorAll('#themes .chip[aria-pressed=true]')].map(c=>c.textContent.toLowerCase());
+  const lang=document.querySelector('#langs .chip[aria-pressed=true]').textContent;
+  let t=`Create a complete brand identity for "${name||'my brand'}"`;
+  if(what)t+=` — ${what}`;
+  t+='.\n\n';
+  if(hasLogo)t+=`I have an existing logo (attached). Build the whole system around it, do not redraw it. Its sampled palette: ${palette.join(', ')}.\n`;
+  else t+='No logo yet. Show me 6 to 8 logo options before committing.\n';
+  if(themes.length)t+=`Aesthetic direction: ${themes.join(', ')}.\n`;
+  t+=lang==='English'?'Language: English deck.\n':lang==='Arabic'?'Language: Arabic RTL deck with proper Arabic typography.\n':'Language: bilingual, English deck plus an Arabic RTL version.\n';
+  t+='\nDeliver the full guidelines deck as HTML and PDF with real AI product mockups.';
+  document.getElementById('brief').textContent=t;
+}
+// copy buttons
+function wire(btn,getText){const b=document.getElementById(btn);b.addEventListener('click',()=>{navigator.clipboard.writeText(getText()).then(()=>{b.textContent='Copied';b.classList.add('ok');setTimeout(()=>{b.textContent='Copy';b.classList.remove('ok')},1600)})})}
+wire('copyBrief',()=>document.getElementById('brief').textContent);
+wire('copyInstall',()=>'git clone https://github.com/AbdulkareemKR/brand-identity-generator.git ~/.claude/skills/brand-identity');
+// scroll reveals
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

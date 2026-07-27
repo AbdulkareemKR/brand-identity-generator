@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" role="img" aria-label="terra">
+  <style>text{font-family:'Fraunces';font-weight:600}</style>
+  <path d="M96 86 Q210 34 324 86" fill="none" stroke="#C4633C" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="210" cy="14" r="11" fill="#C4633C"/>
+  <text x="210" y="188" text-anchor="middle" font-size="112" fill="#2E201A">terr<tspan fill="#C4633C">a</tspan></text>
+</svg>
