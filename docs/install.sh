@@ -8,9 +8,12 @@ URL="https://brand.sadaorg.com/brand-identity-skill.zip"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
+command -v unzip >/dev/null || { echo "unzip is required, install it first."; exit 1; }
+
 echo "Downloading the brand-identity skill..."
 curl -fsSL "$URL" -o "$TMP/skill.zip"
 unzip -q -o "$TMP/skill.zip" -d "$TMP"
+[ -d "$TMP/brand-identity" ] || { echo "Unexpected zip layout, aborting (nothing changed)."; exit 1; }
 
 mkdir -p "$(dirname "$DEST")"
 if [ -d "$DEST" ]; then

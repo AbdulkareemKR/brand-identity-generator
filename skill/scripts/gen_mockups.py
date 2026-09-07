@@ -48,25 +48,31 @@ PAL = ("Brand Netzero, a climate technology company that verifies reforestation 
        "Soft daylight, no people, mint or white background. ")
 
 # Guards prepended to every logo-bearing prompt.
-LOGO_RULE = ("Use the PROVIDED logo image EXACTLY as given, do NOT redraw, restyle, recolor "
-             "or add letters to it. Apply it printed / embroidered / embossed so it sits into "
-             "the material and follows the surface curvature, folds and lighting, not a flat sticker. ")
-NO_TEXT   = "Absolutely NO text, letters or numbers anywhere except the provided logo. "
+LOGO_RULE = ("Use the PROVIDED logo image EXACTLY as given, letter for letter, do NOT redraw, "
+             "restyle, recolor, crop or add letters to it; every glyph and the mark's counter "
+             "shapes must survive intact. Apply it printed / embroidered / foil stamped so it "
+             "sits into the material and follows the surface curvature, folds and lighting, "
+             "not a flat sticker. Keep the whole logo fully visible with clear space around it, "
+             "never touching edges or handles. ")
+NO_TEXT   = ("Absolutely NO text, letters or numbers anywhere except the provided logo. "
+             "Flat solid brand colors, no gradients on the logo. Photographic, shot on a DSLR. ")
+# QA-learned: blind emboss/letterpress at large scale garbles letterforms — business cards use
+# flat 2 color print. App icons use the BADGE/mark only, never the wordmark.
 
 # Logo-bearing mockups: (name, prompt, [reference PNGs], size). One product each; vary the angle.
 # size: "1024x1024" | "1536x1024" (landscape) | "1024x1536" (portrait) | "auto".
 EDIT_JOBS = [
-    ("bc_front",   "A single business card FRONT, top-down flat lay on mint: a deep teal card with the white logo centered, rounded corners, soft daylight shadow.", [LOGO_WHITE], "1536x1024"),
-    ("bc_back",    "A single business card BACK, top-down flat lay on mint: a white card with the small green mark in a corner and a faint dotted grid, soft shadow.", [MARK], "1536x1024"),
-    ("bc_stack",   "An angled three quarter STACK of deep teal business cards with one white card fanned on top, on mint, soft directional shadow.", [LOGO_WHITE, MARK], "1536x1024"),
-    ("cup_mug",    "A white ceramic MUG, front view on mint, the green logo printed large with a thin leaf line band, soft studio shadow.", [LOGO_NAVY], "1024x1024"),
+    ("bc_front",   "A single business card FRONT, top-down flat lay on mint: a deep teal card with the white logo FLAT PRINTED at modest size centered (no emboss, no letterpress), rounded corners, soft daylight shadow.", [LOGO_WHITE], "1536x1024"),
+    ("bc_back",    "A single business card BACK, top-down flat lay on mint: a white card with the small green mark flat printed in a corner and a faint dotted grid, soft shadow.", [MARK], "1536x1024"),
+    ("bc_stack",   "An angled three quarter STACK of deep teal business cards with one white card fanned on top, logos flat printed, on mint, soft directional shadow.", [LOGO_WHITE, MARK], "1536x1024"),
+    ("cup_mug",    "A white ceramic MUG, front view on mint, the green logo printed centered on the visible face, fully inside the face with clear space on both sides, not touching the handle, curving naturally with the ceramic, soft studio shadow.", [LOGO_NAVY], "1024x1024"),
     ("cup_takeaway","A white takeaway PAPER CUP with a green patterned sleeve, three quarter angle, the mark on the sleeve, mint background.", [MARK], "1024x1024"),
     ("tote",       "A natural cotton TOTE bag hanging, front view on mint, the green logo printed on the body, soft daylight.", [LOGO_NAVY], "1024x1536"),
     ("notebook",   "A deep teal hardcover NOTEBOOK with the mark foil stamped, plus a mint notebook and a pen, top-down on mint, soft shadow.", [MARK_WHITE], "1536x1024"),
     ("tshirt_front","FRONT of a white t-shirt on an invisible ghost mannequin, no person, empty, the green mark embroidered on the chest, mint background.", [MARK], "1024x1536"),
     ("polo_front", "FRONT of a deep teal polo shirt on an invisible ghost mannequin, no person, empty, the white mark embroidered on the chest, mint background.", [MARK_WHITE], "1024x1536"),
     ("cap",        "A deep teal baseball CAP, three quarter front, the green mark embroidered on the front panel, mint background, soft light.", [MARK], "1024x1024"),
-    ("app_icon",   "A clean isolated rounded-square APP ICON showing the mark, no background plate, no gray tile, transparent background, soft reflection.", [BADGE], "1024x1024"),
+    ("app_icon",   "A clean isolated flat APP ICON reproducing the provided rounded square badge exactly: solid brand color square, the symbol centered, NO wordmark, no 3D, no texture, no background plate, no gray tile, transparent background.", [BADGE], "1024x1024"),
     ("bottle",     "A matte deep teal reusable water BOTTLE, front view on mint, the white mark printed mid-body, soft daylight shadow.", [MARK_WHITE], "1024x1536"),
     ("giftbox",    "A closed deep teal rigid GIFT BOX with a mint ribbon, three quarter view on mint, the mark foil stamped on the lid, soft shadow.", [MARK_WHITE], "1536x1024"),
     ("lanyard",    "A green LANYARD with a blank white ID card holder, the mark at the top of the lanyard strap, on mint, soft light.", [MARK], "1024x1536"),

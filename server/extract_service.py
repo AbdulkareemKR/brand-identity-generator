@@ -44,8 +44,10 @@ API_KEY = os.environ.get("OPENAI_API_KEY")
 MODEL = os.environ.get("IMAGE_MODEL", "gpt-image-1")
 QUALITY = os.environ.get("IMAGE_QUALITY", "medium")
 MAX_JOB_IMAGES = 8
-RATE_LIMIT = 4            # jobs per IP
+RATE_LIMIT = 4            # generate jobs per IP
+EXTRACT_LIMIT = 20        # extract calls per IP (cheaper, but disk+CPU)
 RATE_WINDOW = 3600
+# NOTE: in-memory jobs/rate require exactly ONE gunicorn worker (-w 1, threads ok).
 
 HEX_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 CTX = ssl.create_default_context()
@@ -86,6 +88,12 @@ def _sweep():
                     os.rmdir(p)
     except OSError:
         pass
+    # prune in-memory state too, or a long-lived process grows forever
+    with lock:
+        for jid in [j for j, v in jobs.items() if v.get("t0", 0) and now - v["t0"] > PACK_TTL]:
+            jobs.pop(jid, None)
+        for ip in [ip for ip, q in rate.items() if not q or now - q[-1] > RATE_WINDOW]:
+            rate.pop(ip, None)
 
 
 def _dataurl(path):
@@ -93,13 +101,19 @@ def _dataurl(path):
         return "data:image/png;base64," + base64.b64encode(f.read()).decode()
 
 
-def _rate_ok(ip):
+def _client_ip():
+    # nginx overwrites X-Real-IP with $remote_addr (never pass-through), and the
+    # app binds 127.0.0.1 only, so the header is trustworthy in this deployment.
+    return request.headers.get("X-Real-IP") or request.remote_addr or "?"
+
+
+def _rate_ok(ip, limit=RATE_LIMIT, bucket=""):
     with lock:
-        q = rate.setdefault(ip, deque())
+        q = rate.setdefault(bucket + ip, deque())
         now = time.time()
         while q and now - q[0] > RATE_WINDOW:
             q.popleft()
-        if len(q) >= RATE_LIMIT:
+        if len(q) >= limit:
             return False
         q.append(now)
         return True
@@ -169,10 +183,13 @@ def gpt_generate(prompt, size="1024x1024", transparent=False, tries=3):
 
 
 # ---------------------------------------------------------------- job engine
-NO_TEXT = "Absolutely NO text, letters or numbers anywhere except the provided logo. "
-LOGO_RULE = ("Use the PROVIDED logo image EXACTLY as given, do NOT redraw, restyle, recolor "
-             "or add letters to it. Apply it printed, embroidered or embossed so it sits into "
-             "the material and follows the surface curvature, folds and lighting, not a flat sticker. ")
+NO_TEXT = ("Absolutely NO text, letters or numbers anywhere except the provided logo. "
+           "The logo in flat solid colors, no gradient. Photographic, shot on a DSLR. ")
+LOGO_RULE = ("Use the PROVIDED logo image EXACTLY as given, letter for letter, do NOT redraw, "
+             "restyle, recolor, crop or add letters to it; every glyph and counter shape must "
+             "survive intact. Apply it printed or embroidered so it sits into the material and "
+             "follows the surface curvature, folds and lighting, not a flat sticker. Keep the "
+             "whole logo fully visible with clear space around it, never touching edges or handles. ")
 
 
 def _mockup_jobs(assets, palette):
@@ -186,73 +203,108 @@ def _mockup_jobs(assets, palette):
     logo_w = assets.get("logo_white") or mark_w
     badge = assets.get("app_badge") or mark
     return [
-        ("business_cards", "An angled three quarter stack of business cards in the darkest brand color with one light card fanned on top, the light logo on the dark cards, soft directional shadow, studio flat lay.", [logo_w], "1536x1024", False),
-        ("mug",           "A white ceramic mug, front view, the logo printed large on the body, soft studio shadow, light background tinted with the palest brand color.", [logo], "1024x1024", False),
+        ("business_cards", "An angled three quarter stack of business cards in the darkest brand color with one light card fanned on top, the light logo FLAT PRINTED at modest size on the dark cards (no emboss, no letterpress, every letter visible), soft directional shadow, studio flat lay.", [logo_w], "1536x1024", False),
+        ("mug",           "A white ceramic mug, front view, the logo printed centered on the visible face, entire logo fully visible with clear space on both sides, not touching the handle, curving naturally with the ceramic, soft studio shadow, light background tinted with the palest brand color.", [logo], "1024x1024", False),
         ("tshirt",        "Front of a white t-shirt on an invisible ghost mannequin, no person, empty, the mark embroidered on the chest, soft daylight, pale brand color background.", [mark], "1024x1536", False),
         ("tote",          "A natural cotton tote bag hanging, front view, the logo printed on the body, soft daylight, pale background.", [logo], "1024x1536", False),
-        ("app_icon",      "A clean isolated rounded square app icon featuring the provided badge, no background plate, no gray tile, subtle top light.", [badge], "1024x1024", True),
-        ("notebook",      "A hardcover notebook in the darkest brand color with the light mark foil stamped, plus a pen, top-down studio flat lay, soft shadow.", [mark_w], "1536x1024", False),
-        ("signage",       "A modern office reception wall sign, the logo mounted on a warm light wall, bright daylight, photographic.", [logo], "1536x1024", False),
-        ("billboard",     "A large outdoor billboard by a sunny modern street at daytime, a light panel with the logo centered, photographic.", [logo], "1536x1024", False),
+        ("app_icon",      "A clean isolated flat app icon reproducing the provided rounded square badge EXACTLY: solid brand color square, symbol centered, NO wordmark, no 3D, no texture, no background plate, no gray tile.", [badge], "1024x1024", True),
+        ("notebook",      "A hardcover notebook in the darkest brand color with the light mark foil stamped small, plus a pen, top-down studio flat lay, soft shadow.", [mark_w], "1536x1024", False),
+        ("signage",       "A modern office reception wall sign, the logo as crisp CNC cut acrylic letters mounted on a warm light wall, every letterform and counter clean and unmelted, bright daylight, photographic.", [logo], "1536x1024", False),
+        ("billboard",     "A large outdoor billboard by a sunny modern street at daytime, a light panel with the logo centered in its exact flat brand colors, photographic.", [logo], "1536x1024", False),
     ], pal
 
 
 def _run_logo_job(jid, assets, palette, name):
     job = jobs[jid]
-    entries, pal = _mockup_jobs(assets, palette)
-    entries = entries[:MAX_JOB_IMAGES]
-    job["total"] = len(entries)
-    for fname, prompt, refs, size, transp in entries:
-        try:
-            refs = [r for r in refs if r and os.path.exists(r)]
-            data = gpt_edit(LOGO_RULE + NO_TEXT + pal + prompt, refs, size, transp)
-            out = os.path.join(job["dir"], fname + ".png")
-            with open(out, "wb") as f:
-                f.write(data)
-            job["items"].append({"name": fname, "url": "/api/file/%s/%s.png" % (jid, fname)})
-        except Exception as e:
-            job["items"].append({"name": fname, "error": repr(e)[:120]})
-        job["done"] += 1
-    _zip_job(jid)
-    job["status"] = "done"
+    try:
+        entries, pal = _mockup_jobs(assets, palette)
+        entries = entries[:MAX_JOB_IMAGES]
+        job["total"] = len(entries)
+        for fname, prompt, refs, size, transp in entries:
+            try:
+                refs = [r for r in refs if r and os.path.exists(r)]
+                data = gpt_edit(LOGO_RULE + NO_TEXT + pal + prompt, refs, size, transp)
+                out = os.path.join(job["dir"], fname + ".png")
+                with open(out, "wb") as f:
+                    f.write(data)
+                job["items"].append({"name": fname, "url": "/api/file/%s/%s.png" % (jid, fname)})
+            except Exception as e:
+                job["items"].append({"name": fname, "error": repr(e)[:120]})
+            job["done"] += 1
+        # ship the source assets inside the kit zip too, so one download has everything
+        adir = os.path.join(job["dir"], "assets")
+        os.makedirs(adir, exist_ok=True)
+        for k, p in assets.items():
+            try:
+                with open(p, "rb") as src, open(os.path.join(adir, os.path.basename(p)), "wb") as dst:
+                    dst.write(src.read())
+            except OSError:
+                pass
+        _zip_job(jid)
+    finally:
+        job["status"] = "done"
+
+
+def _dehaze(path):
+    """Kill the glow/halo haze gpt-image-1 bakes into 'transparent' logo alpha:
+    faint alpha becomes fully transparent, solid alpha stays."""
+    try:
+        im = Image.open(path).convert("RGBA")
+        a = im.getchannel("A").point(lambda v: 0 if v < 90 else v)
+        im.putalpha(a)
+        im.save(path)
+    except OSError:
+        pass
 
 
 def _run_scratch_job(jid, name, desc, style, palette):
     job = jobs[jid]
-    n = 6
-    job["total"] = n
-    hexes = ", ".join(palette[:4]) if palette else "#35CA66, #003038"
-    styled = STYLES.get(style, STYLES["modern"])
-    latin = all(ord(c) < 0x600 or not c.isalpha() for c in name)
-    name_part = ('The logo includes the brand name "%s" in clean matching lettering. ' % name) if (name and latin and len(name) <= 18) else "Symbol only, no lettering. "
-    base = ("Professional logo design for a brand called %s. %s. Style: %s. "
-            "Colors strictly from: %s. %sCentered, flat vector, solid shapes, "
-            "no photo, no mockup, no background scene, no watermark. " % (name, desc, styled, hexes, name_part))
-    variations = ["", "Alternative concept, different core shape. ",
-                  "Alternative concept, emblem or badge composition. ",
-                  "Alternative concept, negative space trick. ",
-                  "Alternative concept, dynamic asymmetric mark. ",
-                  "Alternative concept, simplest possible reduction. "]
-    for i, extra in enumerate(variations[:n], 1):
-        fname = "concept_%d" % i
-        try:
-            data = gpt_generate(base + extra, "1024x1024", transparent=True)
-            with open(os.path.join(job["dir"], fname + ".png"), "wb") as f:
-                f.write(data)
-            job["items"].append({"name": fname, "url": "/api/file/%s/%s.png" % (jid, fname)})
-        except Exception as e:
-            job["items"].append({"name": fname, "error": repr(e)[:120]})
-        job["done"] += 1
-    _zip_job(jid)
-    job["status"] = "done"
+    try:
+        hexes = ", ".join(palette[:4]) if palette else "#35CA66, #003038"
+        styled = STYLES.get(style, STYLES["modern"])
+        latin = all(ord(c) < 0x600 or not c.isalpha() for c in name)
+        name_part = ('The logo includes the brand name "%s" spelled exactly, in clean matching lettering. ' % name) if (name and latin and len(name) <= 18) else "Symbol only, no lettering. "
+        base = ("Professional logo design for a brand called %s. %s. Style: %s. "
+                "Colors strictly and exactly from: %s. %s"
+                "FLAT VECTOR with hard edges and solid fills only: absolutely no glow, no halo, "
+                "no gradient, no soft shadow, no haze, no outline effects. "
+                "Centered, no photo, no mockup, no background scene, no watermark. "
+                % (name, desc, styled, hexes, name_part))
+        # six genuinely different directions, each with its own motif brief
+        variations = [
+            "Concept direction: a single iconic symbol drawn from the literal subject of the description. ",
+            "Concept direction: an emblem or badge composition framing the name. ",
+            "Concept direction: a negative space trick hiding a second meaning. ",
+            "Concept direction: a monogram or lettermark built from the brand's initial letters. ",
+            "Concept direction: an abstract geometric mark, no literal imagery. ",
+            "Concept direction: the name itself as a custom wordmark with one modified letterform. ",
+        ]
+        job["total"] = len(variations)
+        for i, extra in enumerate(variations, 1):
+            fname = "concept_%d" % i
+            try:
+                data = gpt_generate(base + extra, "1024x1024", transparent=True)
+                p = os.path.join(job["dir"], fname + ".png")
+                with open(p, "wb") as f:
+                    f.write(data)
+                _dehaze(p)
+                job["items"].append({"name": fname, "url": "/api/file/%s/%s.png" % (jid, fname)})
+            except Exception as e:
+                job["items"].append({"name": fname, "error": repr(e)[:120]})
+            job["done"] += 1
+        _zip_job(jid)
+    finally:
+        job["status"] = "done"
 
 
 def _zip_job(jid):
     d = jobs[jid]["dir"]
     zpath = os.path.join(DATA_DIR, jid + ".zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-        for fn in sorted(os.listdir(d)):
-            z.write(os.path.join(d, fn), arcname="brand-kit/" + fn)
+        for root, _, fs in os.walk(d):
+            for fn in sorted(fs):
+                full = os.path.join(root, fn)
+                z.write(full, arcname="brand-kit/" + os.path.relpath(full, d))
 
 
 # ---------------------------------------------------------------- routes
@@ -264,6 +316,8 @@ def health():
 @app.post("/api/extract")
 def extract():
     _sweep()
+    if not _rate_ok(_client_ip(), EXTRACT_LIMIT, "x:"):
+        return jsonify(ok=False, error="Rate limit reached, try again in an hour."), 429
     f = request.files.get("logo")
     if not f or not f.filename:
         return jsonify(ok=False, error="No logo file uploaded. Send a PNG, JPG or WEBP in the 'logo' field."), 400
@@ -320,7 +374,7 @@ def generate():
     jid = uuid.uuid4().hex
     jdir = os.path.join(DATA_DIR, jid)
     os.makedirs(jdir, exist_ok=True)
-    jobs[jid] = {"status": "running", "done": 0, "total": 0, "items": [], "dir": jdir}
+    jobs[jid] = {"status": "running", "done": 0, "total": 0, "items": [], "dir": jdir, "t0": time.time()}
 
     if mode == "logo":
         assets = {}
@@ -354,8 +408,7 @@ def generate():
         jobs.pop(jid, None)
         return jsonify(ok=False, error="mode must be 'logo' or 'scratch'."), 400
 
-    ip = request.headers.get("X-Real-IP") or request.remote_addr or "?"
-    if not _rate_ok(ip):
+    if not _rate_ok(_client_ip()):
         jobs.pop(jid, None)
         return jsonify(ok=False, error="Rate limit reached, try again in an hour."), 429
 

@@ -21,7 +21,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--ff);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:var(--ff);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::selection{background:var(--green);color:#fff}
 h1,h2,h3{line-height:1.15;font-weight:700;color:var(--teal)}
 a{color:inherit}
@@ -64,7 +64,7 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper
 /* path choice */
 .paths{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
 @media(max-width:720px){.paths{grid-template-columns:1fr}}
-.path{position:relative;text-align:left;border:1.5px solid var(--line);border-radius:16px;background:var(--paper);padding:26px;cursor:pointer;transition:border-color .2s,transform .2s}
+.path{position:relative;text-align:left;border:1.5px solid var(--line);border-radius:16px;background:var(--paper);padding:26px 26px 52px;cursor:pointer;transition:border-color .2s,transform .2s}
 .path:hover{border-color:var(--green);transform:translateY(-2px)}
 .path h3{font-size:20px;margin-bottom:8px}
 .path p{font-size:14.5px;color:var(--mut);font-weight:300;max-width:40ch}
@@ -277,7 +277,8 @@ footer a{color:var(--teal)}
 <script>
 const $=q=>document.querySelector(q);
 const API="/api";
-let state={pack:null,palette:[],primary:null,name:"",desc:"",style:null,job:null,mode:null,concepts:[]};
+let state={pack:null,palette:[],primary:null,name:"",desc:"",style:null,job:null,mode:null,concepts:[],busy:false};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function stage(no,title,crumb,html){
   $("#stno").textContent=no; $("#sttitle").textContent=title; $("#stcrumb").textContent=crumb||"";
@@ -304,6 +305,8 @@ function goUpload(){
   file.addEventListener("change",()=>{if(file.files[0])upload(file.files[0])});
 }
 async function upload(f){
+  if(state.busy)return;
+  state.busy=true;
   $("#drop").innerHTML="<b>Extracting…</b><br><span class='hint'>isolating the mark, sampling the palette</span>";
   const fd=new FormData(); fd.append("logo",f);
   try{
@@ -313,6 +316,7 @@ async function upload(f){
     state.pack=j.pack_id; state.palette=j.palette; state.primary=j.primary;
     confirmStage(j);
   }catch(e){goUpload();err("Could not reach the server. Try again.")}
+  finally{state.busy=false}
 }
 function confirmStage(j){
   const caps={logo:"original",logo_white:"white variant",mark:"mark",mark_white:"mark white",app_badge:"app badge"};
@@ -335,7 +339,7 @@ function confirmStage(j){
     </div>
     <p class="err" id="err"></p>
     <div class="btnrow">
-      <button class="btn g" onclick="launchLogoJob()">Looks right, start creating →</button>
+      <button class="btn g" onclick="launchLogoJob(null,this)">Looks right, start creating →</button>
       <a class="btn ghost" href="${API}/pack/${state.pack}.zip">Download assets only</a>
       <button class="btn ghost" onclick="goUpload()">← Different logo</button>
     </div>`);
@@ -355,7 +359,9 @@ function renderSw(){
 }
 function addSwatch(h){if(state.palette.length<6){state.palette.push(h);renderSw()}}
 
-async function launchLogoJob(extra){
+async function launchLogoJob(extra,btn){
+  if(state.busy)return;
+  state.busy=true; if(btn)btn.disabled=true;
   const body=Object.assign({mode:"logo",pack_id:state.pack,palette:state.palette,name:state.name||"the brand"},extra||{});
   try{
     const r=await fetch(API+"/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -365,19 +371,20 @@ async function launchLogoJob(extra){
     progressStage("Growing your brand kit","business cards, mug, shirt, tote, app icon, notebook, signage, billboard");
     poll(showKit);
   }catch(e){err("Could not reach the server.")}
+  finally{state.busy=false; if(btn)btn.disabled=false}
 }
 
 /* ---------- PATH B: scratch ---------- */
 const PALS=[["#35CA66","#003038","#E9F8EB"],["#1F2A44","#DBC3A5","#F4EFE6"],["#D4F935","#0A0E17","#111827"],
             ["#FF1991","#2B0A1E","#FFE9F3"],["#E76F2C","#3B2317","#FAF3EA"],["#2563EB","#0B1B3A","#EAF1FF"]];
 function goScratch(){
-  state.mode="scratch";
+  state.mode="scratch"; state.style=null; state.palette=[];
   let stylecards="";
   const names={minimal:"Minimal",modern:"Modern",organic:"Organic",playful:"Playful",luxury:"Luxury",tech:"Tech",vintage:"Vintage",handdrawn:"Hand drawn",mascot:"Mascot",monogram:"Monogram",abstract:"Abstract",calligraphy:"Calligraphy"};
   for(const k in names) stylecards+=`<button class="style" data-k="${k}" onclick="selStyle(this)"><img loading="lazy" src="/assets/styles/${k}.jpg" alt="${names[k]} logo style example"><span>${names[k]}</span></button>`;
   let palrow="";
   PALS.forEach((p,i)=>{palrow+=`<button class="pal" data-i="${i}" onclick="selPal(this)" aria-label="palette ${p.join(' ')}">${p.map(c=>`<i style="background:${c}"></i>`).join("")}</button>`});
-  stage(2,"Describe the brand","step 2 of 4",`
+  stage(2,"Describe the brand","step 2 of 5",`
     <div class="f">
       <div><label for="bname">Brand name</label><input type="text" id="bname" maxlength="40" placeholder="e.g. Terra"></div>
       <div><label for="bdesc">What does it do? Who is it for?</label><textarea id="bdesc" maxlength="200" placeholder="Specialty coffee roastery for young professionals in Riyadh"></textarea></div>
@@ -397,20 +404,23 @@ async function launchScratch(){
   if(!state.name){err("Give the brand a name.");return}
   if(!state.style){err("Pick a logo style, that is the fun part.");return}
   if(!state.palette.length)state.palette=PALS[0].slice();
+  if(state.busy)return;
+  state.busy=true; const btn=$("#launch"); if(btn)btn.disabled=true;
   try{
     const r=await fetch(API+"/generate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({mode:"scratch",name:state.name,desc:state.desc,style:state.style,palette:state.palette})});
     const j=await r.json();
     if(!j.ok){err(j.error||"Could not start generation.");return}
     state.job=j.job_id;
-    progressStage("Sketching logo concepts","six directions in your style and colors");
+    progressStage("Sketching logo concepts","six directions in your style and colors",3);
     poll(showConcepts);
   }catch(e){err("Could not reach the server.")}
+  finally{state.busy=false; if($("#launch"))$("#launch").disabled=false}
 }
 
 /* ---------- progress + results ---------- */
-function progressStage(title,sub){
-  stage(4,title,"generating",`
+function progressStage(title,sub,num){
+  stage(num||4,title,"generating",`
     <div class="prog">
       <p style="font-size:14.5px;color:var(--mut);font-weight:300">${sub}. This takes a couple of minutes, images render one by one.</p>
       <div class="branch"><i id="bar"></i></div>
@@ -418,29 +428,44 @@ function progressStage(title,sub){
       <p class="err" id="err"></p>
     </div>`);
 }
+let pollFails=0;
 async function poll(done){
   try{
-    const r=await fetch(API+"/job/"+state.job); const j=await r.json();
+    const r=await fetch(API+"/job/"+state.job);
+    if(r.status===404)throw{fatal:true};
+    const j=await r.json();
+    pollFails=0;
     const pct=j.total?Math.round(100*j.done/j.total):4;
     $("#bar").style.width=Math.max(pct,4)+"%";
     const pl=$("#plist"); pl.innerHTML="";
     j.items.forEach(it=>{
       const li=document.createElement("div"); li.className="pitem "+(it.error?"bad":"ok");
-      li.innerHTML=`<span class="dot">${it.error?"!":"✓"}</span>${it.name.replace(/_/g," ")}${it.error?" — retry later":""}`;
+      li.innerHTML=`<span class="dot">${it.error?"!":"✓"}</span>${esc(it.name).replace(/_/g," ")}${it.error?" — could not render":""}`;
       pl.appendChild(li);
     });
     if(j.status!=="done"&&j.total>j.items.length){
       const li=document.createElement("div"); li.className="pitem doing";
       li.innerHTML=`<span class="dot"></span>rendering…`; pl.appendChild(li);
     }
-    if(j.status==="done"){done(j);return}
-  }catch(e){}
+    if(j.status==="done"){
+      if(!j.items.some(i=>!i.error)){pollDead("Every image failed to render. The image service may be down, please try again in a few minutes.");return}
+      done(j);return
+    }
+  }catch(e){
+    pollFails++;
+    if(e&&e.fatal||pollFails>=8){pollDead("Lost track of this job, likely a server restart. Please start again.");return}
+  }
   setTimeout(()=>poll(done),2500);
+}
+function pollDead(msg){
+  stage("!","Generation stopped","",`
+    <p style="font-size:15px;color:var(--mut);max-width:52ch">${msg}</p>
+    <div class="btnrow"><button class="btn g" onclick="location.reload()">Start over</button></div>`);
 }
 function showKit(j){
   const good=j.items.filter(i=>!i.error);
-  let g=good.map(i=>`<figure><img src="${i.url}" alt="${i.name}" onclick="lb('${i.url}')"><figcaption>${i.name.replace(/_/g," ")}</figcaption></figure>`).join("");
-  stage(4,"Your brand kit is ready","done",`
+  let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')"><figcaption>${esc(i.name).replace(/_/g," ")}</figcaption></figure>`).join("");
+  stage(state.mode==="scratch"?5:4,"Your brand kit is ready","done",`
     <div class="gal">${g}</div>
     <div class="btnrow">
       <a class="btn g" href="${API}/pack/${state.job}.zip">Download the kit (zip)</a>
@@ -452,10 +477,10 @@ function showKit(j){
 function showConcepts(j){
   const good=j.items.filter(i=>!i.error);
   state.concepts=good;
-  let g=good.map(i=>`<figure><img src="${i.url}" alt="${i.name}" onclick="lb('${i.url}')">
-    <button class="pick" onclick="pickConcept('${i.name}')">Build the brand with this →</button></figure>`).join("");
-  stage(3,"Pick your favorite concept","step 3 of 4",`
-    <p style="font-size:14.5px;color:var(--mut);font-weight:300;margin-bottom:16px">Six directions for ${state.name}. Pick one and we build the full mockup kit around it, or download them all.</p>
+  let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')">
+    <button class="pick" onclick="pickConcept('${esc(i.name)}')">Build the brand with this →</button></figure>`).join("");
+  stage(3,"Pick your favorite concept","step 3 of 5",`
+    <p style="font-size:14.5px;color:var(--mut);font-weight:300;margin-bottom:16px">${good.length} direction${good.length>1?"s":""} for ${esc(state.name)}. Pick one and we build the full mockup kit around it, or download them all.</p>
     <div class="gal">${g}</div>
     <p class="err" id="err"></p>
     <div class="btnrow">
@@ -464,6 +489,8 @@ function showConcepts(j){
     </div>`);
 }
 function pickConcept(name){
+  if(state.busy)return;
+  document.querySelectorAll(".pick").forEach(b=>b.disabled=true);
   const cj=state.job;
   state.pack=null;
   launchLogoJob({concept:cj+"/"+name+".png"});
