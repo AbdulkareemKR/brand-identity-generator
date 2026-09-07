@@ -795,8 +795,8 @@ function showKit(j){
       <p style="font-size:14px;color:var(--mut);font-weight:300;margin:6px 0 4px;max-width:62ch">${full?"":t("kit_deck_p")}</p>
       ${full?"":`<p class="hint" style="margin:0 0 14px">${t("kit_locked")}</p>`}
       <div class="btnrow" style="margin-top:${full?"14px":"0"}">
-        ${full&&state.fullUrl?`<a class="btn g" href="${API}${state.fullUrl}">${t("kit_full_pdf")}</a>`:""}
-        <a class="btn ghost" href="${API}${j.preview}">${t("kit_prev")}</a>
+        ${full&&state.fullUrl?`<a class="btn g" href="${state.fullUrl}">${t("kit_full_pdf")}</a>`:""}
+        <a class="btn ghost" href="${j.preview}">${t("kit_prev")}</a>
         ${full?"":`<button class="btn g" onclick="payStage()">${t("kit_unlock")}</button>`}
       </div>
     </div>`:"";

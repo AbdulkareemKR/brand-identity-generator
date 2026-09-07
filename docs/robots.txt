@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://abdulkareemkr.github.io/brand-identity-generator/sitemap.xml
+Disallow: /api/
+Sitemap: https://brand.sadaorg.com/sitemap.xml
