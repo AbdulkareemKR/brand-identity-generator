@@ -17,15 +17,16 @@ Confirm which mode, then confirm color + logo direction BEFORE building 30+ slid
 ## Required context (gather first, do not infer from code)
 Brand name, product, market and geography, target audience and use case, personality and tone (as extremes), locked assets (name, colors, fonts). Ask 2 to 4 crisp multiple choice questions if missing, then proceed.
 
-## Reference brand (built in): Netzero
-Every example, default, and shipped asset in this skill uses **Netzero** as the reference brand. Company name is Arabic «نت زيرو» (with quotes and a space) and English **Netzero**, one word, capital N only. Never write NetZero, Net Zero, or نت-زيرو. Netzero is a climate technology company that verifies reforestation with AI.
-- **Palette:** primary green `#35CA66`, deep teal `#003038`, mint `#E9F8EB`, ink `#232323`, white `#FFFFFF`; accents lime `#AEFF00` and magenta `#FF1991`. Green is the hero. Size the color swatches by usage share (green, teal, mint dominate as tall blocks; the two accents are a thin secondary row).
-- **Type:** Alexandria for both Latin and Arabic, weights 300 to 800, `font-family:'Alexandria',system-ui,sans-serif`.
-- **Values:** Sustainability, Partnership, Innovation, Impact. **Personality:** natural, contemporary, friendly, youthful, simple. **Voice:** casual, warm, progressive, accessible over technical, community driven.
-- **Tagline:** "Every Line We Draw Becomes a Leaf".
-- **Products (joined, lowercase, ™):** treemap™, treelog™, treetag™, treewallet™; also Planter© and PocketForests. Sub logos keep the master mark plus a descriptor plus their own accent.
-- **Logo:** reuse the provided Netzero wordmark and square mark PNGs (run `process_logo.py` on them to get clean variants and the app badge). Never rebuild the letters in HTML or SVG.
-When the user supplies their OWN brand, override this block with theirs. Otherwise build the deck as Netzero.
+## Structural reference: the Netzero guideline
+The **Netzero brand guideline** (a real shipped agency deck) is the skill's STRUCTURAL reference: use it for the page count, the section list, and the kinds of content a complete guideline must contain — NOT for styling. Every brand gets its OWN palette, type, and aesthetic; never default a client deck to Netzero colors or fonts.
+
+What the Netzero deck proves a complete guideline contains (mirror this scope):
+- The 8 sections of the deck structure below, each with a dark divider, ~40 slides total.
+- Logo section with meaning, lockups + clear space, min sizes, color variants, misuse, and sub logos (its products treemap™/treelog™/treetag™/treewallet™ show the pattern: sub brands keep the master mark + a descriptor + their own accent).
+- Values (4, e.g. Sustainability/Partnership/Innovation/Impact) + personality sliders + voice sliders, a one line tagline ("Every Line We Draw Becomes a Leaf" is the reference calibre).
+- Proportional color blocks, full type specimen (one family can cover Latin + Arabic, like its Alexandria 300 to 800), photography direction, patterns/elements, and the FULL mandatory application set below.
+
+If the brand IS Netzero: Arabic «نت زيرو» (quotes + space), English **Netzero** one word capital N only (never NetZero / Net Zero / نت-زيرو); palette green `#35CA66`, teal `#003038`, mint `#E9F8EB`, ink `#232323`, accents lime `#AEFF00` + magenta `#FF1991`; Alexandria; reuse the real wordmark/mark PNGs via `process_logo.py`, never rebuild the letters.
 
 ## Copy rules (read before writing any slide text)
 - **No hyphens or dashes in ANY user visible text.** Titles, subtitles, body, captions, eyebrows, pills, footers, sticker copy, ad creatives, certificates: everywhere. No hyphen, no en dash, no em dash. Write clean sentences instead. "navy and cream", not "navy-and-cream". "true to the brand", not "on-brand". Break a dash clause into two sentences or use a comma (commas are still banned from titles, see below). Dimensions like `85 × 55 mm`, the middot in `ONQ · عنق`, phone numbers, and dashes inside code, URLs, or CSS are fine. This is a hard client preference. Before export, run a mechanical sweep, not just an eyeball pass: strip tags and attributes from the deck HTML, then grep the remaining text for `-`, `–`, and `—` (e.g. `python3 -c "import re,sys; t=re.sub(r'<[^>]*>',' ',open('deck.html').read()); [print(l) for l in t.splitlines() if re.search(r'[—–-]', l)]"`) and rewrite every hit that is not a dimension, phone number, or code literal.

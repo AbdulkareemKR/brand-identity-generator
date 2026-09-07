@@ -6,9 +6,15 @@
 
 **A Claude Code skill that designs a complete, agency-grade brand identity — logo system, colors, typography, voice, and real AI product mockups — delivered as a polished 16:9 brand guidelines deck (HTML + PDF).**
 
-[Website & brief builder](https://abdulkareemkr.github.io/brand-identity-generator/) ·
+[Live generator studio](https://brand.sadaorg.com/) ·
 [The skill](skill/SKILL.md) ·
 [Example output](examples/terra/)
+
+**Install in one line:**
+
+```bash
+curl -fsSL https://brand.sadaorg.com/install.sh | bash
+```
 
 </div>
 
@@ -46,17 +52,28 @@ Full example deck: [`examples/terra/Terra-Brand-Guidelines.pdf`](examples/terra/
 
 ## How it works
 
-1. **Brief** — You tell Claude the brand name, market, audience, and vibe (or use the [brief builder](https://abdulkareemkr.github.io/brand-identity-generator/) to compose one). Upload a logo, or let the skill design one and show you 6 to 8 options.
+1. **Brief** — You tell Claude the brand name, market, audience, and vibe (or try the [live studio](https://brand.sadaorg.com/) first for a quick taste). Upload a logo, or let the skill design one and show you 6 to 8 options.
 2. **Foundations** — The skill locks the logo, samples/derives a palette, picks a type pairing, and confirms direction with you *before* building 30+ slides.
-3. **Mockups** — Real product photos are generated with your actual logo passed as a reference image (Gemini 2.5 Flash Image), plus flat illustrations and patterns (gpt-image-1). Guards prevent redrawn letters and AI-invented gibberish text.
+3. **Mockups** — Real product photos are generated with your actual logo passed as a reference image to gpt-image-1 (`/v1/images/edits`, high input fidelity), plus flat illustrations and patterns (`/v1/images/generations`). Guards prevent redrawn letters and AI-invented gibberish text.
 4. **Deck & review** — Everything is composed into one self-contained HTML deck, printed to PDF via headless Chrome, then every page is rasterized and visually reviewed before delivery.
 
 ## Install
 
+Any ONE of these — all end with the skill in `~/.claude/skills/brand-identity/`:
+
 ```bash
-git clone https://github.com/AbdulkareemKR/brand-identity-generator.git \
-  ~/.claude/skills/brand-identity
+# 1. one line, from the website
+curl -fsSL https://brand.sadaorg.com/install.sh | bash
+
+# 2. one line, straight from GitHub (no third party server involved)
+curl -fsSL https://raw.githubusercontent.com/AbdulkareemKR/brand-identity-generator/main/install.sh | bash
+
+# 3. manual — note the skill lives in the repo's skill/ folder, not the repo root
+git clone --depth 1 https://github.com/AbdulkareemKR/brand-identity-generator.git /tmp/big \
+  && mkdir -p ~/.claude/skills && cp -R /tmp/big/skill ~/.claude/skills/brand-identity && rm -rf /tmp/big
 ```
+
+Or [download the zip](https://brand.sadaorg.com/brand-identity-skill.zip) and unzip it into `~/.claude/skills/`.
 
 Then in [Claude Code](https://claude.com/claude-code):
 
@@ -70,13 +87,13 @@ The skill triggers on: *brand identity, brand guidelines, design system, brand b
 
 | Env variable | Used for | Required? |
 |---|---|---|
-| `GEMINI_API_KEY` | Logo-bearing product mockups (Gemini 2.5 Flash Image) — [get one](https://aistudio.google.com/apikey) | Optional, recommended |
-| `OPENAI_API_KEY` | Flat illustrations, seamless patterns, illustrated scenes (gpt-image-1) — [get one](https://platform.openai.com/api-keys) | Optional |
+| `OPENAI_API_KEY` | ALL AI mockups (gpt-image-1: logo-bearing product edits + flat illustrations and patterns) — [get one](https://platform.openai.com/api-keys) | Optional, recommended |
 
 ```bash
-export GEMINI_API_KEY="..."   # add to ~/.zshrc or ~/.bashrc
-export OPENAI_API_KEY="..."
+export OPENAI_API_KEY="..."   # add to ~/.zshrc or ~/.bashrc
 ```
+
+One key, one model. No Gemini key needed.
 
 No keys? The deck still builds — logo, colors, type, voice, and vector slides render free via headless Chrome. You only lose the AI photo mockups.
 
