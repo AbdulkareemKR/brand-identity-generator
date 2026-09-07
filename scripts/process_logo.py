@@ -149,6 +149,40 @@ def sample_palette(im, k=5):
     return ["#%02X%02X%02X" % (r, g, b) for r, g, b, _ in out]
 
 
+def derive_support(palette):
+    """Complete a sampled palette into a usable system: keep the sampled brand
+    colors, then add derived ink, surface, and background colors that brands
+    always need. Returns (hexes, roles) aligned by index."""
+    def hx(rgb): return "#%02X%02X%02X" % rgb
+    def px(h): return tuple(int(h.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+    def dist(a, b):
+        (r1, g1, b1), (r2, g2, b2) = px(a), px(b)
+        return ((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2) ** 0.5
+    def luma(h):
+        r, g, b = px(h)
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    def mix(h, to, f):
+        r, g, b = px(h)
+        tr, tg, tb = to
+        return hx((round(r + (tr - r) * f), round(g + (tg - g) * f), round(b + (tb - b) * f)))
+
+    out = list(palette[:4])
+    roles = ["primary"] + ["brand"] * (len(out) - 1)
+    prim = out[0] if out else "#C4633C"
+
+    def add(h, role):
+        if len(out) >= 6:
+            return
+        if all(dist(h, e) > 40 for e in out):
+            out.append(h); roles.append(role)
+
+    if not any(luma(c) < 70 for c in out):
+        add(mix(prim, (10, 10, 14), 0.78), "ink")          # near-dark of the primary
+    add(mix(prim, (255, 255, 255), 0.72), "surface")       # soft tint for cards/sections
+    add(mix(prim, (255, 255, 255), 0.93), "background")    # pale page field
+    return out, roles
+
+
 def parse_hex(s):
     s = s.strip().lstrip("#")
     if len(s) == 3:
@@ -221,13 +255,14 @@ def process(logo_path, out="assets", mark_run="last", primary=None):
     else:
         note = "no column runs found; check the source image"
 
-    palette = sample_palette(im)
-    prim = parse_hex(primary) if primary else pick_primary(palette)
+    sampled = sample_palette(im)
+    palette, roles = derive_support(sampled)
+    prim = parse_hex(primary) if primary else pick_primary(sampled or palette)
     if mark_white_img is not None:
         app_badge(mark_white_img, prim).save(os.path.join(out, "app-badge.png"))
         written["app_badge"] = "app-badge.png"
 
-    meta = {"palette": palette, "primary": "#%02X%02X%02X" % prim, "files": written, "note": note}
+    meta = {"palette": palette, "roles": roles, "primary": "#%02X%02X%02X" % prim, "files": written, "note": note}
     with open(os.path.join(out, "palette.json"), "w") as f:
         json.dump(meta, f, indent=2)
     return meta
