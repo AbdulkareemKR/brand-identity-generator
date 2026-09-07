@@ -107,12 +107,13 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper
 
 /* extraction result */
 .exgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(20px,4vw,40px)}
+.exgrid>div{min-width:0}
 @media(max-width:760px){.exgrid{grid-template-columns:1fr}}
 .variants{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.variants figure{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;place-items:center;aspect-ratio:1.25;background:
+.variants figure{min-width:0;overflow:hidden;position:relative;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;place-items:center;aspect-ratio:1.25;background:
   repeating-conic-gradient(#F1E8DA 0 25%,#FDFAF4 0 50%) 0 0/16px 16px}
 .variants figure.dark{background:var(--teal)}
-.variants img{max-height:70%;max-width:82%;object-fit:contain}
+.variants img{max-height:70%;max-width:82%;width:auto;height:auto;object-fit:contain}
 .variants figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:8px}
 .sw{display:flex;flex-direction:column;gap:8px}
 .swatch{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#FDFAF4}

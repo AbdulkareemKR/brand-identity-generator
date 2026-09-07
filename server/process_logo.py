@@ -107,18 +107,46 @@ def pad_square(im, bg=(0, 0, 0, 0)):
     return out
 
 
-def sample_palette(im, k=6):
-    small = im.convert("RGBA").resize((80, 80))
+def sample_palette(im, k=5):
+    """Cluster-based palette: merge similar shades into one swatch each instead of
+    returning six near-duplicates, and put the saturated hero color first."""
+    small = im.convert("RGBA").resize((128, 128))
     px = small.load(); c = Counter()
-    for y in range(80):
-        for x in range(80):
+    for y in range(128):
+        for x in range(128):
             r, g, b, a = px[x, y]
             if a < 40:
                 continue
             if max(r, g, b) - min(r, g, b) < 12 and (r > 235 or r < 20):
                 continue  # skip near white / near black neutrals
-            c[(r // 16 * 16, g // 16 * 16, b // 16 * 16)] += 1
-    return ["#%02X%02X%02X" % rgb for rgb, _ in c.most_common(k)]
+            c[(r // 8 * 8, g // 8 * 8, b // 8 * 8)] += 1
+    # greedy clustering: frequent colors absorb anything within a small distance
+    clusters = []  # [sum_r, sum_g, sum_b, weight]
+    for (r, g, b), n in c.most_common(400):
+        placed = False
+        for cl in clusters:
+            cr, cg, cb = cl[0] / cl[3], cl[1] / cl[3], cl[2] / cl[3]
+            if ((r - cr) ** 2 + (g - cg) ** 2 + (b - cb) ** 2) ** 0.5 < 60:
+                cl[0] += r * n; cl[1] += g * n; cl[2] += b * n; cl[3] += n
+                placed = True
+                break
+        if not placed:
+            clusters.append([r * n, g * n, b * n, n])
+    total = sum(cl[3] for cl in clusters) or 1
+    out = []
+    for cl in sorted(clusters, key=lambda cl: -cl[3]):
+        if cl[3] / total < 0.02 and len(out) >= 2:
+            continue  # drop anti-aliasing noise once real colors exist
+        r, g, b = (round(cl[i] / cl[3]) for i in (0, 1, 2))
+        out.append((r, g, b, cl[3]))
+        if len(out) == k:
+            break
+    # the brand hero leads: promote the most frequent clearly saturated cluster
+    for i, (r, g, b, n) in enumerate(out):
+        if max(r, g, b) - min(r, g, b) >= 50:
+            out.insert(0, out.pop(i))
+            break
+    return ["#%02X%02X%02X" % (r, g, b) for r, g, b, _ in out]
 
 
 def parse_hex(s):
