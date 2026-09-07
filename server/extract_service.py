@@ -267,6 +267,7 @@ def _run_logo_job(jid, assets, palette, name, full=False):
         job["full"] = full
     finally:
         job["status"] = "done"
+        _persist_job(jid)
 
 
 def _dehaze(path):
@@ -317,6 +318,22 @@ def _run_scratch_job(jid, name, desc, style, palette):
         _zip_job(jid)
     finally:
         job["status"] = "done"
+        _persist_job(jid)
+
+
+def _persist_job(jid):
+    """Write terminal job state next to its files so downloads and status
+    survive a process restart (the in-memory dict does not)."""
+    j = jobs.get(jid)
+    if not j:
+        return
+    try:
+        with open(os.path.join(j["dir"], "status.json"), "w") as f:
+            json.dump({"status": j["status"], "done": j["done"], "total": j["total"],
+                       "items": j["items"], "full": bool(j.get("full")),
+                       "deck": bool(j.get("deck")), "deck_error": j.get("deck_error")}, f)
+    except OSError:
+        pass
 
 
 def _zip_job(jid):
@@ -441,6 +458,22 @@ def generate():
 @app.get("/api/job/<jid>")
 def job_status(jid):
     j = jobs.get(jid)
+    if not j and re.match(r"^[0-9a-f]{32}$", jid):
+        # restart fallback: resurrect finished jobs from disk
+        sp = os.path.join(DATA_DIR, jid, "status.json")
+        if os.path.exists(sp):
+            try:
+                with open(sp) as f:
+                    d = json.load(f)
+                j = {"status": d.get("status", "done"), "done": d.get("done", 0),
+                     "total": d.get("total", 0), "items": d.get("items", []),
+                     "dir": os.path.join(DATA_DIR, jid), "t0": time.time(),
+                     "full": d.get("full"), "deck": d.get("deck"),
+                     "deck_error": d.get("deck_error")}
+                with lock:
+                    jobs.setdefault(jid, j)
+            except (OSError, ValueError):
+                pass
     if not j:
         abort(404)
     done = j["status"] == "done"

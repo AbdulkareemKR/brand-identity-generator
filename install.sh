@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Brand Identity Generator skill installer (repo version — no server needed).
+# Brand Identity Generator skill installer.
 # Usage: curl -fsSL https://raw.githubusercontent.com/AbdulkareemKR/brand-identity-generator/main/install.sh | bash
 set -euo pipefail
 
@@ -10,15 +10,12 @@ trap 'rm -rf "$TMP"' EXIT
 
 echo "Downloading the brand-identity skill..."
 curl -fsSL "$TARBALL" | tar -xz -C "$TMP"
-SRC="$TMP/brand-identity-generator-main/skill"
+SRC="$TMP/brand-identity-generator-main"
 [ -f "$SRC/SKILL.md" ] || { echo "Unexpected repo layout, aborting (nothing changed)."; exit 1; }
 
-mkdir -p "$(dirname "$DEST")"
-if [ -d "$DEST" ]; then
-  echo "Updating existing install at $DEST"
-  rm -rf "$DEST"
-fi
-cp -R "$SRC" "$DEST"
+mkdir -p "$DEST/scripts"
+cp "$SRC/SKILL.md" "$SRC/README.md" "$DEST/" 2>/dev/null || cp "$SRC/SKILL.md" "$DEST/"
+cp "$SRC"/scripts/*.py "$DEST/scripts/"
 
 echo ""
 echo "Installed to $DEST"
