@@ -217,11 +217,21 @@ def _mockup_jobs(assets, palette):
     ], pal
 
 
-def _run_logo_job(jid, assets, palette, name):
+# Cost-aligned tiers: AI images are the expensive part. The free tier renders ONE
+# teaser product; payment unlocks generation of the remaining seven + full deck.
+TEASER = {"mug"}
+
+
+def _run_logo_job(jid, assets, palette, name, full=False):
     job = jobs[jid]
     try:
         entries, pal = _mockup_jobs(assets, palette)
         entries = entries[:MAX_JOB_IMAGES]
+        if not full:
+            entries = [e for e in entries if e[0] in TEASER]
+        else:
+            # continuation after payment: skip anything already rendered
+            entries = [e for e in entries if not os.path.exists(os.path.join(job["dir"], e[0] + ".png"))]
         job["total"] = len(entries)
         for fname, prompt, refs, size, transp in entries:
             try:
@@ -239,18 +249,22 @@ def _run_logo_job(jid, assets, palette, name):
         os.makedirs(adir, exist_ok=True)
         for k, p in assets.items():
             try:
-                with open(p, "rb") as src, open(os.path.join(adir, os.path.basename(p)), "wb") as dst:
-                    dst.write(src.read())
+                if not os.path.exists(os.path.join(adir, os.path.basename(p))):
+                    with open(p, "rb") as src, open(os.path.join(adir, os.path.basename(p)), "wb") as dst:
+                        dst.write(src.read())
             except OSError:
                 pass
-        # build the guideline document: free watermarked preview + paid full deck.
-        # full.pdf must NOT land in the free kit zip, so zip first, then build.
+        # remember inputs so the paid continuation survives a restart
+        with open(os.path.join(job["dir"], "meta.json"), "w") as f:
+            json.dump({"name": name, "palette": palette}, f)
+        # full.pdf must NOT land in the kit zip, so zip first, then build decks
         _zip_job(jid)
         try:
-            deck_builder.build_deck(job["dir"], name, palette)
+            deck_builder.build_deck(job["dir"], name, palette, preview_only=not full)
             job["deck"] = True
         except Exception as e:
             job["deck_error"] = repr(e)[:160]
+        job["full"] = full
     finally:
         job["status"] = "done"
 
@@ -280,14 +294,12 @@ def _run_scratch_job(jid, name, desc, style, palette):
                 "no gradient, no soft shadow, no haze, no outline effects. "
                 "Centered, no photo, no mockup, no background scene, no watermark. "
                 % (name, desc, styled, hexes, name_part))
-        # six genuinely different directions, each with its own motif brief
+        # four genuinely different directions (kept lean: concepts are free tier)
         variations = [
             "Concept direction: a single iconic symbol drawn from the literal subject of the description. ",
             "Concept direction: an emblem or badge composition framing the name. ",
-            "Concept direction: a negative space trick hiding a second meaning. ",
             "Concept direction: a monogram or lettermark built from the brand's initial letters. ",
-            "Concept direction: an abstract geometric mark, no literal imagery. ",
-            "Concept direction: the name itself as a custom wordmark with one modified letterform. ",
+            "Concept direction: a negative space trick hiding a second meaning. ",
         ]
         job["total"] = len(variations)
         for i, extra in enumerate(variations, 1):
@@ -436,7 +448,7 @@ def job_status(jid):
                    items=j["items"],
                    download="/api/pack/%s.zip" % jid if done else None,
                    preview="/api/preview/%s.pdf" % jid if done and j.get("deck") else None,
-                   deck_error=j.get("deck_error"))
+                   full=bool(j.get("full")), deck_error=j.get("deck_error"))
 
 
 def _dl_token(jid):
@@ -482,7 +494,47 @@ def pay_verify():
         return jsonify(ok=False, error="Payment amount mismatch."), 402
     if meta.get("job_id") != jid:
         return jsonify(ok=False, error="Payment does not match this document."), 402
-    return jsonify(ok=True, url="/api/full/%s.pdf?t=%s" % (jid, _dl_token(jid)))
+
+    # Payment good. Launch (or reuse) the paid continuation: render the remaining
+    # products and the full guideline. Idempotent per job.
+    jdir = os.path.join(DATA_DIR, jid)
+    if not os.path.isdir(jdir):
+        return jsonify(ok=False, error="This job expired. Contact support with your payment reference for a refund."), 410
+    with lock:
+        j = jobs.get(jid)
+        if j is None:
+            # process restarted since the free run; rebuild the entry from disk
+            j = {"status": "done", "done": 0, "total": 0, "items": [], "dir": jdir, "t0": time.time()}
+            jobs[jid] = j
+        start = not j.get("paid_started")
+        j["paid_started"] = True
+    if start:
+        try:
+            with open(os.path.join(jdir, "meta.json")) as f:
+                m = json.load(f)
+        except OSError:
+            m = {"name": "the brand", "palette": []}
+        assets = {}
+        adir = os.path.join(jdir, "assets")
+        if os.path.isdir(adir):
+            keymap = {"logo": "logo-navy.png", "logo_white": "logo-white.png",
+                      "mark": "mark-navy.png", "mark_white": "mark-white.png",
+                      "app_badge": "app-badge.png"}
+            for k, fn in keymap.items():
+                p = os.path.join(adir, fn)
+                if os.path.exists(p):
+                    assets[k] = p
+            for fn in sorted(os.listdir(adir)):
+                if fn.startswith("concept_"):
+                    assets.setdefault("logo", os.path.join(adir, fn))
+                    assets.setdefault("mark", os.path.join(adir, fn))
+        j.update(status="running", done=0, total=0, items=[
+            {"name": k[:-4], "url": "/api/file/%s/%s" % (jid, k)}
+            for k in sorted(os.listdir(jdir)) if k.endswith(".png")])
+        threading.Thread(target=_run_logo_job,
+                         args=(jid, assets, m.get("palette") or [], m.get("name") or "the brand", True),
+                         daemon=True).start()
+    return jsonify(ok=True, job_id=jid, url="/api/full/%s.pdf?t=%s" % (jid, _dl_token(jid)))
 
 
 @app.get("/api/full/<jid>.pdf")

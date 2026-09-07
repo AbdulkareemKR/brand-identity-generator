@@ -55,7 +55,7 @@ def _rgb(hexc):
     return ", ".join(str(int(h[i:i + 2], 16)) for i in (0, 2, 4))
 
 
-def build_deck(job_dir, name, palette, out_dir=None):
+def build_deck(job_dir, name, palette, out_dir=None, preview_only=False):
     out_dir = out_dir or job_dir
     name = (name or "Your brand").strip()[:40]
     pal = [p for p in (palette or []) if re.match(r"^#[0-9a-fA-F]{6}$", p)][:6] or ["#C4633C", "#2E201A", "#F6EEE3"]
@@ -233,7 +233,8 @@ def build_deck(job_dir, name, palette, out_dir=None):
     prev_slides.append(unlock())
 
     out = {}
-    for kind, slides in (("full", full_slides), ("preview", prev_slides)):
+    kinds = (("preview", prev_slides),) if preview_only else (("full", full_slides), ("preview", prev_slides))
+    for kind, slides in kinds:
         html = f"<!doctype html><html><head><meta charset='utf-8'><style>{css}</style></head><body>{''.join(slides)}</body></html>"
         hpath = os.path.join(out_dir, kind + ".html")
         with open(hpath, "w") as f:

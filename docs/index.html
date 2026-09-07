@@ -11,7 +11,7 @@
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Karla:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Karla:wght@300;400;600;700;800&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23C4633C'/><path d='M50 76V40M50 40c0-14 10-20 22-20 0 14-10 20-22 20Zm0 12c0-10-8-15-17-15 0 10 8 15 17 15Z' stroke='%23F6EEE3' stroke-width='7' fill='none' stroke-linecap='round'/></svg>">
 <style>
 /* Editorial brand-book palette (site identity — matches the original GitHub Pages design).
@@ -23,6 +23,10 @@
   --ff:'Karla',system-ui,sans-serif;
   --fd:'Fraunces',serif;
 }
+[dir=rtl]{--ff:'IBM Plex Sans Arabic',system-ui,sans-serif;--fd:'Amiri',serif}
+[dir=rtl] body{letter-spacing:0}
+.langbtn{border:1.5px solid var(--line);background:#FDFAF4;border-radius:999px;padding:6px 16px;font-size:13.5px;font-weight:700;color:var(--mut);cursor:pointer;transition:.15s}
+.langbtn:hover{border-color:var(--green);color:var(--green)}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--ff);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -39,7 +43,7 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper
 .nav .mark{width:30px;height:30px;border-radius:9px;background:var(--green);display:grid;place-items:center;flex:none}
 .nav .mark svg{width:18px;height:18px}
 .nav b{font-weight:700;letter-spacing:.01em;color:var(--teal)}
-.nav nav{margin-left:auto;display:flex;gap:22px;font-size:14.5px}
+.nav nav{margin-inline-start:auto;display:flex;gap:22px;font-size:14.5px;align-items:center}
 .nav nav a{text-decoration:none;color:var(--mut)}
 .nav nav a:hover{color:var(--teal)}
 @media(max-width:640px){.nav nav a.hide-m{display:none}}
@@ -76,7 +80,7 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper
 .stagehead{display:flex;align-items:center;gap:14px;padding:20px 26px;border-bottom:1px solid var(--line);background:var(--mint)}
 .stagehead .no{font-weight:800;font-size:13px;color:#fff;background:var(--teal);width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none}
 .stagehead b{color:var(--teal);font-size:15.5px}
-.stagehead span.crumb{margin-left:auto;font-size:13px;color:var(--mut)}
+.stagehead span.crumb{margin-inline-start:auto;font-size:13px;color:var(--mut)}
 .stagebody{padding:clamp(22px,4vw,40px)}
 .fade{animation:fade .5s cubic-bezier(.16,1,.3,1) both}
 @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -88,7 +92,7 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper
 .path:hover{border-color:var(--green);transform:translateY(-2px)}
 .path h3{font-size:20px;margin-bottom:8px}
 .path p{font-size:14.5px;color:var(--mut);font-weight:300;max-width:40ch}
-.path .go{position:absolute;right:20px;bottom:18px;color:var(--green);font-weight:700;font-size:14px}
+.path .go{position:absolute;inset-inline-end:20px;bottom:18px;color:var(--green);font-weight:700;font-size:14px}
 .path.primary{background:var(--teal);border-color:var(--teal)}
 .path.primary h3{color:#fff}
 .path.primary p{color:#D9BFA6}
@@ -115,8 +119,8 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper
 .swatch .chip{width:40px;height:40px;border-radius:10px;border:1px solid rgba(0,0,0,.08);flex:none;cursor:pointer;padding:0;background:none}
 .swatch .chip input{width:100%;height:100%;border:0;padding:0;cursor:pointer;border-radius:10px}
 .swatch code{font-size:13.5px;color:var(--teal);font-weight:600;font-family:var(--ff)}
-.swatch .tag{margin-left:auto;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);font-weight:700}
-.swatch .del{margin-left:auto;background:none;border:0;color:#b95;cursor:pointer;font-size:16px;line-height:1}
+.swatch .tag{margin-inline-start:auto;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);font-weight:700}
+.swatch .del{margin-inline-start:auto;background:none;border:0;color:#b95;cursor:pointer;font-size:16px;line-height:1}
 .swatch .del:hover{color:var(--mag)}
 
 /* form */
@@ -183,6 +187,17 @@ section.info h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:26px;max-width:22
 .step b{display:block;color:var(--teal);margin-bottom:6px;font-size:16px}
 .step p{font-size:14.5px;color:var(--mut);font-weight:300}
 .step .n{font-size:38px;font-weight:800;color:var(--green);opacity:.35;line-height:1}
+/* style marquee */
+.marq{overflow:hidden;padding:8px 0 0;position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marq .track{display:flex;gap:14px;width:max-content;animation:marq 38s linear infinite}
+.marq:hover .track{animation-play-state:paused}
+.marq img{width:132px;height:132px;border-radius:16px;border:1px solid var(--line);object-fit:cover;display:block}
+@keyframes marq{to{transform:translateX(-50%)}}
+[dir=rtl] .marq .track{animation-name:marqr}
+@keyframes marqr{to{transform:translateX(50%)}}
+.btag{position:absolute;top:10px;inset-inline-start:10px;background:color-mix(in srgb,#20150F 72%,transparent);color:#F6EEE3;font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+.exshow figure{position:relative}
+
 /* examples showcase */
 .exshow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 @media(max-width:820px){.exshow{grid-template-columns:repeat(2,1fr)}}
@@ -229,7 +244,7 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
 .fcmd:hover{border-color:var(--green)}
 .fbot{border-top:1px solid #4A362B;padding:18px 0 24px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:13px;color:#B9A28C;position:relative;z-index:1}
 .fbot a{color:#F6EEE3}
-.fbot .leafline{margin-left:auto;display:flex;align-items:center;gap:8px}
+.fbot .leafline{margin-inline-start:auto;display:flex;align-items:center;gap:8px}
 .fbot .leafline svg{width:15px;height:15px}
 
 /* lightbox */
@@ -245,39 +260,42 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
   <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 82V40M50 40c0-16 11-23 25-23 0 16-11 23-25 23Zm0 14c0-11-9-17-19-17 0 11 9 17 19 17Z" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round"/></svg></span>
   <b>Brand Identity Generator</b>
   <nav>
-    <a href="#studio">Create</a>
-    <a href="#examples" class="hide-m">Examples</a>
-    <a href="#pricing" class="hide-m">Pricing</a>
-    <a href="#faq" class="hide-m">FAQ</a>
+    <a href="#studio" data-i="nav_create">Create</a>
+    <a href="#examples" class="hide-m" data-i="nav_examples">Examples</a>
+    <a href="#pricing" class="hide-m" data-i="nav_pricing">Pricing</a>
+    <a href="#faq" class="hide-m" data-i="nav_faq">FAQ</a>
+    <button class="langbtn" id="langbtn" onclick="setLang(lang==='ar'?'en':'ar')">عربي</button>
   </nav>
 </div></header>
 
 <div class="wrap hero">
   <div class="hgrid">
     <div>
-      <span class="eyebrow reveal in">No signup · free to try</span>
-      <h1 class="reveal in d1">Your logo in.<br>A <em>whole brand</em> out.</h1>
-      <p class="lead reveal in d2">Real product mockups, clean assets, and a designed brand guideline. In minutes.</p>
+      <span class="eyebrow reveal in" data-i="hero_eyebrow">No signup · free to try</span>
+      <h1 class="reveal in d1" data-i="hero_h1">Your logo in.<br>A <em>whole brand</em> out.</h1>
+      <p class="lead reveal in d2" data-i="hero_lead">Real product mockups, clean assets, and a designed brand guideline. In minutes.</p>
       <div class="btnrow reveal in d3" style="margin-top:0">
-        <a class="btn g" href="#studio">Start now</a>
-        <a class="btn ghost" href="#examples">See examples</a>
+        <a class="btn g" href="#studio" data-i="hero_cta">Start now</a>
+        <a class="btn ghost" href="#examples" data-i="hero_cta2">See examples</a>
       </div>
       <div class="chip-row reveal in d4">
-        <span>8 product mockups</span><span>Guideline PDF</span><span>Arabic ready</span>
+        <span data-i="chip1">8 product mockups</span><span data-i="chip2">Guideline PDF</span><span data-i="chip3">Arabic ready</span>
       </div>
     </div>
     <div class="hstack" aria-hidden="true">
-      <div class="hcard hc1"><img src="/assets/showcase/mug.jpg" alt=""></div>
+      <div class="hcard hc1"><img src="/assets/showcase/nz-mug.jpg" alt=""></div>
       <div class="hcard hc2"><img src="/assets/showcase/tshirt.jpg" alt=""></div>
       <div class="hcard hc3"><img src="/assets/showcase/billboard.jpg" alt=""></div>
-      <div class="hcard hc4"><img src="/assets/showcase/deck-cover.jpg" alt=""></div>
+      <div class="hcard hc4"><img src="/assets/cup.jpg" alt=""></div>
     </div>
   </div>
 </div>
 
+<div class="marq" aria-hidden="true"><div class="track" id="marqtrack"></div></div>
+
 <div class="wrap" id="studio">
   <div class="stage">
-    <div class="stagehead"><span class="no" id="stno">1</span><b id="sttitle">Choose your starting point</b><span class="crumb" id="stcrumb"></span></div>
+    <div class="stagehead"><span class="no" id="stno">1</span><b id="sttitle" data-i="st_title">Choose your starting point</b><span class="crumb" id="stcrumb"></span></div>
     <div class="stagebody" id="stbody">
 
       <!-- STEP 0: path choice -->
@@ -301,64 +319,69 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
 </div>
 
 <div class="wrap"><section class="info" id="how">
-  <h2 class="reveal">How it works</h2>
+  <h2 class="reveal" data-i="how_h2">How it works</h2>
   <div class="steps">
-    <div class="step reveal d1"><span class="n">01</span><b>Upload</b><p>Drop your logo. We isolate the mark, sample the palette, and build every variant. No logo yet? Pick a style instead.</p></div>
-    <div class="step reveal d2"><span class="n">02</span><b>Confirm</b><p>You approve the colors before anything generates.</p></div>
-    <div class="step reveal d3"><span class="n">03</span><b>Get the brand</b><p>Eight product mockups with your real mark, a full asset pack, and a designed guideline PDF.</p></div>
+    <div class="step reveal d1"><span class="n">01</span><b data-i="s1h">Upload</b><p data-i="s1p">Drop your logo. We isolate the mark, sample the palette, and build every variant.</p></div>
+    <div class="step reveal d2"><span class="n">02</span><b data-i="s2h">Confirm</b><p data-i="s2p">You approve the colors and personality before anything generates.</p></div>
+    <div class="step reveal d3"><span class="n">03</span><b data-i="s3h">Get the brand</b><p data-i="s3p">A free sample mockup and preview. Unlock the full kit and guideline when you love it.</p></div>
   </div>
 </section></div>
 
 <div class="wrap"><section class="info" id="examples">
-  <h2 class="reveal">Made here</h2>
-  <p class="reveal d1" style="color:var(--mut);font-weight:300;max-width:50ch;margin:-14px 0 30px;font-size:15.5px">One upload produced everything below. Real output, untouched.</p>
+  <h2 class="reveal" data-i="ex_h2">Made here</h2>
+  <p class="reveal d1" style="color:var(--mut);font-weight:300;max-width:50ch;margin:-14px 0 30px;font-size:15.5px" data-i="ex_p">Three brands. Real output, untouched.</p>
   <div class="exshow">
-    <figure class="reveal"><img src="/assets/showcase/cards.jpg" alt="Generated business cards mockup" loading="lazy"><figcaption>Business cards</figcaption></figure>
-    <figure class="reveal d1"><img src="/assets/showcase/notebook.jpg" alt="Generated notebook mockup" loading="lazy"><figcaption>Stationery</figcaption></figure>
-    <figure class="reveal d2"><img src="/assets/showcase/signage.jpg" alt="Generated signage mockup" loading="lazy"><figcaption>Signage</figcaption></figure>
-    <figure class="reveal d3"><img src="/assets/showcase/tote.jpg" alt="Generated tote mockup" loading="lazy"><figcaption>Tote</figcaption></figure>
-    <figure class="reveal d1 wide"><img src="/assets/showcase/deck-logo.jpg" alt="Guideline logo page" loading="lazy"><figcaption>Guideline · logo</figcaption></figure>
-    <figure class="reveal d2 wide"><img src="/assets/showcase/deck-color.jpg" alt="Guideline color page" loading="lazy"><figcaption>Guideline · color</figcaption></figure>
+    <figure class="reveal"><span class="btag">SQUADNA</span><img src="/assets/showcase/cards.jpg" alt="Business cards mockup" loading="lazy"></figure>
+    <figure class="reveal d1"><span class="btag">NETZERO</span><img src="/assets/showcase/nz-mug.jpg" alt="Mug mockup" loading="lazy"></figure>
+    <figure class="reveal d2"><span class="btag">TERRA</span><img src="/assets/storefront.jpg" alt="Storefront mockup" loading="lazy"></figure>
+    <figure class="reveal d3"><span class="btag">SQUADNA</span><img src="/assets/showcase/signage.jpg" alt="Signage mockup" loading="lazy"></figure>
+    <figure class="reveal d1 wide"><span class="btag">SQUADNA</span><img src="/assets/showcase/deck-logo.jpg" alt="Guideline logo page" loading="lazy"></figure>
+    <figure class="reveal d2 wide"><span class="btag">NETZERO</span><img src="/assets/showcase/nz-deck-cover.jpg" alt="Guideline cover" loading="lazy"></figure>
+    <figure class="reveal"><span class="btag">TERRA</span><img src="/assets/bag.jpg" alt="Coffee bag mockup" loading="lazy"></figure>
+    <figure class="reveal d1"><span class="btag">NETZERO</span><img src="/assets/showcase/nz-tote.jpg" alt="Tote mockup" loading="lazy"></figure>
+    <figure class="reveal d2"><span class="btag">SQUADNA</span><img src="/assets/showcase/tote.jpg" alt="Tote mockup" loading="lazy"></figure>
+    <figure class="reveal d3"><span class="btag">NETZERO</span><img src="/assets/showcase/nz-billboard.jpg" alt="Billboard mockup" loading="lazy"></figure>
+    <figure class="reveal d2 wide"><span class="btag">NETZERO</span><img src="/assets/showcase/nz-deck-color.jpg" alt="Guideline color page" loading="lazy"></figure>
+    <figure class="reveal d3 wide"><span class="btag">SQUADNA</span><img src="/assets/showcase/deck-color.jpg" alt="Guideline color page" loading="lazy"></figure>
   </div>
 </section></div>
 
 <div class="wrap"><section class="info" id="pricing">
-  <h2 class="reveal">Pricing</h2>
+  <h2 class="reveal" data-i="pr_h2">Pricing</h2>
   <div class="tiers">
     <div class="tier reveal d1">
-      <b class="tname">Free</b>
+      <b class="tname" data-i="tier_free">Free</b>
       <div class="tprice">0 <small>SAR</small></div>
       <ul>
-        <li>Logo extraction and clean variants</li>
-        <li>Confirmed color palette</li>
-        <li>8 product mockups</li>
-        <li>Full asset pack download</li>
-        <li>Watermarked guideline preview</li>
+        <li data-i="fr1">Logo extraction and clean variants</li>
+        <li data-i="fr2">Color palette and personality analysis</li>
+        <li data-i="fr3">App badge and asset files</li>
+        <li data-i="fr4">One sample product mockup</li>
+        <li data-i="fr5">Watermarked guideline preview</li>
       </ul>
-      <a class="btn ghost" href="#studio">Start free</a>
+      <a class="btn ghost" href="#studio" data-i="pr_cta1">Start free</a>
     </div>
     <div class="tier dark reveal d2">
-      <b class="tname">Full guideline</b>
+      <b class="tname" data-i="tier_full">Full brand</b>
       <div class="tprice">35 <small>SAR</small></div>
       <ul>
-        <li>Everything in Free</li>
-        <li>Complete guideline document</li>
-        <li>Every application page</li>
-        <li>No watermark</li>
-        <li>Secure Moyasar checkout</li>
+        <li data-i="fu1">All 8 product mockups</li>
+        <li data-i="fu2">Complete guideline document</li>
+        <li data-i="fu3">Every application page, no watermark</li>
+        <li data-i="fu4">Secure Moyasar checkout</li>
       </ul>
-      <a class="btn g" href="#studio">Create yours</a>
+      <a class="btn g" href="#studio" data-i="pr_cta2">Create yours</a>
     </div>
   </div>
 </section></div>
 
 <div class="wrap"><section class="info" id="faq">
-  <h2 class="reveal">Questions</h2>
-  <details><summary>Is my logo stored?</summary><p>No. Files are processed on the server and deleted within 24 hours. Nothing else is done with them.</p></details>
-  <details><summary>What is in the free download?</summary><p>Your logo variants, the isolated mark, an app badge, the sampled palette, and all eight mockups in one zip.</p></details>
-  <details><summary>Can it do Arabic brands?</summary><p>Yes. Your wordmark is used exactly as given, never redrawn.</p></details>
-  <details><summary>What costs money?</summary><p>Only the complete guideline PDF: 35 SAR through Moyasar. We never see your card details.</p></details>
-  <details><summary>Refunds?</summary><p>Paid and no document? Email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> with your payment reference. We send the file or refund you in full.</p></details>
+  <h2 class="reveal" data-i="faq_h2">Questions</h2>
+  <details><summary data-i="q1">Is my logo stored?</summary><p data-i="a1">No. Files are processed on the server and deleted within 24 hours. Nothing else is done with them.</p></details>
+  <details><summary data-i="q2">What is free?</summary><p data-i="a2">Extraction, the palette and personality analysis, your asset files, one sample mockup, and a watermarked guideline preview.</p></details>
+  <details><summary data-i="q3">Can it do Arabic brands?</summary><p data-i="a3">Yes. Your wordmark is used exactly as given, never redrawn.</p></details>
+  <details><summary data-i="q4">What does 35 SAR unlock?</summary><p data-i="a4">The remaining seven product mockups and the complete guideline PDF with no watermark.</p></details>
+  <details><summary data-i="q5">Refunds?</summary><p data-i="a5">Paid and no document? Email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> with your payment reference. We send the file or refund you in full.</p></details>
 </section></div>
 
 <footer>
@@ -369,27 +392,27 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
           <i><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 82V40M50 40c0-16 11-23 25-23 0 16-11 23-25 23Zm0 14c0-11-9-17-19-17 0 11 9 17 19 17Z" stroke="#F6EEE3" stroke-width="8" fill="none" stroke-linecap="round"/></svg></i>
           <b>Brand Identity Generator</b>
         </div>
-        <p>A logo goes in. A working identity comes out. Free, open source, and built to make the output feel designed, never generated.</p>
+        <p data-i="f_blurb">A logo goes in. A working identity comes out. Built to feel designed, never generated.</p>
       </div>
       <div class="fcol">
-        <h4>Product</h4>
-        <a href="#studio">Create a brand</a>
-        <a href="#examples">Examples</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
+        <h4 data-i="f_product">Product</h4>
+        <a href="#studio" data-i="f_c1">Create a brand</a>
+        <a href="#examples" data-i="f_c2">Examples</a>
+        <a href="#pricing" data-i="f_c3">Pricing</a>
+        <a href="#faq" data-i="f_c4">FAQ</a>
       </div>
       <div class="fcol">
-        <h4>Company</h4>
-        <a href="mailto:support@sadaorg.com">Support</a>
-        <a href="https://github.com/AbdulkareemKR/brand-identity-generator">Open source</a>
+        <h4 data-i="f_company">Company</h4>
+        <a href="mailto:support@sadaorg.com" data-i="f_s1">Support</a>
+        <a href="https://github.com/AbdulkareemKR/brand-identity-generator" data-i="f_s2">Open source</a>
       </div>
     </div>
   </div>
   <div class="wrap">
     <div class="fbot">
-      <span>MIT licensed, use it for anything.</span>
-      <a href="https://github.com/AbdulkareemKR">By Abdulkareem</a>
-      <span class="leafline"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 82V40M50 40c0-16 11-23 25-23 0 16-11 23-25 23Z" stroke="#C4633C" stroke-width="9" fill="none" stroke-linecap="round"/></svg>every line we draw becomes a brand</span>
+      <span data-i="f_mit">MIT licensed, use it for anything.</span>
+      <a href="https://github.com/AbdulkareemKR" data-i="f_by">By Abdulkareem</a>
+      <span class="leafline"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 82V40M50 40c0-16 11-23 25-23 0 16-11 23-25 23Z" stroke="#C4633C" stroke-width="9" fill="none" stroke-linecap="round"/></svg><span data-i="f_tag">every line we draw becomes a brand</span></span>
     </div>
   </div>
 </footer>
@@ -399,27 +422,198 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
 <script>
 const $=q=>document.querySelector(q);
 const API="/api";
-let state={pack:null,palette:[],primary:null,name:"",desc:"",style:null,job:null,mode:null,concepts:[],busy:false};
+let state={pack:null,palette:[],primary:null,name:"",desc:"",style:null,job:null,mode:null,concepts:[],busy:false,lastKit:null,fullUrl:null};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+/* ---------- i18n ---------- */
+const L={
+en:{
+nav_create:"Create",nav_examples:"Examples",nav_pricing:"Pricing",nav_faq:"FAQ",
+hero_eyebrow:"No signup · free to try",hero_h1:"Your logo in.<br>A <em>whole brand</em> out.",
+hero_lead:"Real product mockups, clean assets, and a designed brand guideline. In minutes.",
+hero_cta:"Start now",hero_cta2:"See examples",
+chip1:"Free sample mockup",chip2:"Guideline PDF",chip3:"Arabic and English",
+st_title:"Choose your starting point",
+pA_h:"I have a logo",pA_p:"Drop it in. We extract the palette, every variant, and build your brand around it.",pA_go:"Upload →",
+pB_h:"I need a logo",pB_p:"Pick a style from real examples, choose colors, and generate concepts.",pB_go:"Start from scratch →",
+how_h2:"How it works",s1h:"Upload",s1p:"Drop your logo. We isolate the mark, sample the palette, and build every variant.",
+s2h:"Confirm",s2p:"You approve the colors and personality before anything generates.",
+s3h:"Get the brand",s3p:"A free sample mockup and preview. Unlock the full kit and guideline when you love it.",
+ex_h2:"Made here",ex_p:"Three brands. Real output, untouched.",
+pr_h2:"Pricing",tier_free:"Free",tier_full:"Full brand",
+fr1:"Logo extraction and clean variants",fr2:"Color palette and personality analysis",fr3:"App badge and asset files",fr4:"One sample product mockup",fr5:"Watermarked guideline preview",
+fu1:"All 8 product mockups",fu2:"Complete guideline document",fu3:"Every application page, no watermark",fu4:"Secure Moyasar checkout",
+pr_cta1:"Start free",pr_cta2:"Create yours",
+faq_h2:"Questions",
+q1:"Is my logo stored?",a1:"No. Files are processed on the server and deleted within 24 hours. Nothing else is done with them.",
+q2:"What is free?",a2:"Extraction, the palette and personality analysis, your asset files, one sample mockup, and a watermarked guideline preview.",
+q3:"Can it do Arabic brands?",a3:"Yes. Your wordmark is used exactly as given, never redrawn.",
+q4:"What does 35 SAR unlock?",a4:"The remaining seven product mockups and the complete guideline PDF with no watermark.",
+q5:"Refunds?",a5:'Paid and no document? Email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> with your payment reference. We send the file or refund you in full.',
+f_blurb:"A logo goes in. A working identity comes out. Built to feel designed, never generated.",
+f_product:"Product",f_company:"Company",f_c1:"Create a brand",f_c2:"Examples",f_c3:"Pricing",f_c4:"FAQ",
+f_s1:"Support",f_s2:"Open source",f_mit:"MIT licensed, use it for anything.",f_by:"By Abdulkareem",f_tag:"every line we draw becomes a brand",
+/* wizard */
+w_up_t:"Upload your logo",w_step:"step {a} of {b}",w_drop:"<b>Drop your logo here</b> or click to choose<br><span class='hint'>PNG, JPG or WEBP · transparent PNG works best · up to 10 MB</span>",
+w_extract:"<b>Extracting…</b><br><span class='hint'>isolating the mark, sampling the palette</span>",
+w_back:"← Start over",w_conf_t:"Confirm your colors",
+w_conf_l:"Extracted from your logo. These exact files go in your download pack.",
+w_conf_r:"Suggested palette, sampled from your pixels. Click a chip to adjust, then confirm.",
+w_persona:"Palette personality",w_addcolor:"+ Add a color",w_go:"Looks right, start creating →",
+w_assets:"Download assets only",w_diff:"← Different logo",w_primary:"primary",
+cap_logo:"original",cap_logo_white:"white variant",cap_mark:"mark",cap_mark_white:"mark white",cap_app_badge:"app badge",
+w_desc_t:"Describe the brand",w_name:"Brand name",w_name_ph:"e.g. Terra",
+w_desc:"What does it do? Who is it for?",w_desc_ph:"Specialty coffee roastery for young professionals in Riyadh",
+w_style:"Pick a logo style",w_pal:"Pick a palette, or edit after",w_launch:"Launch brand generation →",
+sty_minimal:"Minimal",sty_modern:"Modern",sty_organic:"Organic",sty_playful:"Playful",sty_luxury:"Luxury",sty_tech:"Tech",sty_vintage:"Vintage",sty_handdrawn:"Hand drawn",sty_mascot:"Mascot",sty_monogram:"Monogram",sty_abstract:"Abstract",sty_calligraphy:"Calligraphy",
+e_name:"Give the brand a name.",e_style:"Pick a logo style, that is the fun part.",
+e_server:"Could not reach the server. Try again.",e_start:"Could not start generation.",e_extract:"Extraction failed.",
+prog_kit:"Growing your sample",prog_kit_s:"your first product mockup and the guideline preview",
+prog_full:"Building your full brand",prog_full_s:"seven more products and the complete guideline",
+prog_con:"Sketching logo concepts",prog_con_s:"four directions in your style and colors",
+prog_wait:"This takes a couple of minutes, images render one by one.",
+prog_rendering:"rendering…",prog_failed:"could not render",
+dead_all:"Every image failed to render. The image service may be down, please try again in a few minutes.",
+dead_lost:"Lost track of this job, likely a server restart. Please start again.",dead_t:"Generation stopped",dead_btn:"Start over",
+kit_t:"Your brand sample is ready",kit_full_t:"Your full brand is ready",
+kit_deck_t:"Your brand guideline",kit_deck_p:"A designed guideline built from your identity. Preview it free, unlock everything for 35 SAR.",
+kit_prev:"Free preview (PDF)",kit_unlock:"Unlock the full brand — 35 SAR",
+kit_locked:"Unlocks: business cards, shirt, tote, app icon, notebook, signage, billboard, and the complete guideline.",
+kit_zip:"Download files (zip)",kit_assets:"Assets pack only",kit_new:"New brand",
+kit_full_zip:"Download the full kit (zip)",kit_full_pdf:"Full guideline (PDF)",
+kit_hint:"Files stay available for 24 hours. Download what you need now.",
+con_t:"Pick your favorite concept",con_p:"{n} directions for {name}. Pick one and we build the brand around it.",
+con_pick:"Build the brand with this →",con_all:"Download all concepts",con_diff:"← Different style",
+pay_t:"Unlock the full brand",pay_c:"secure payment",pay_h:"Full brand — 35 SAR",
+pay_p:"Seven more product mockups and the complete guideline PDF, no watermark. Paid securely through Moyasar. Generation starts right after payment.",
+pay_note:"Card payments are processed by Moyasar; we never see your card details.",
+pay_cancel:"← Back to your sample",pay_loadfail:"Could not load the payment form. Check your connection and retry.",
+ver_t:"Confirming your payment",ver_p:"One moment, verifying with the payment provider…",
+ver_fail_t:"Payment not completed",ver_fail_d:"The payment could not be verified.",
+ver_support:'If you were charged, email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> or open a <a href="https://github.com/AbdulkareemKR/brand-identity-generator/issues">GitHub issue</a> with your payment reference <b>{pid}</b> and we will send your document or refund you.',
+ver_back:"Back to the studio",ver_err_t:"Verification failed",
+ver_err:"Could not reach the server, your payment reference is <b>{pid}</b>. Reload to retry, verification will run again automatically.",
+ver_retry:"Retry verification",
+gen:"generating",done_c:"done",
+persona_warm:"warm",persona_cool:"cool",persona_earthy:"earthy",persona_bold:"bold",persona_calm:"calm",persona_deep:"deep",persona_fresh:"fresh",persona_playful:"playful",persona_premium:"premium",
+},
+ar:{
+nav_create:"ابدأ",nav_examples:"أمثلة",nav_pricing:"الأسعار",nav_faq:"أسئلة",
+hero_eyebrow:"بدون تسجيل · جرب مجانا",hero_h1:"شعارك يدخل.<br><em>علامة كاملة</em> تخرج.",
+hero_lead:"صور منتجات حقيقية وملفات جاهزة ودليل هوية مصمم. في دقائق.",
+hero_cta:"ابدأ الآن",hero_cta2:"شاهد الأمثلة",
+chip1:"نموذج مجاني",chip2:"دليل هوية PDF",chip3:"عربي وإنجليزي",
+st_title:"اختر نقطة البداية",
+pA_h:"عندي شعار",pA_p:"ارفعه وسنستخرج الألوان وكل النسخ ونبني علامتك حوله.",pA_go:"ارفع الشعار ←",
+pB_h:"أحتاج شعارا",pB_p:"اختر أسلوبا من أمثلة حقيقية وألوانا ثم ولد المقترحات.",pB_go:"ابدأ من الصفر ←",
+how_h2:"كيف يعمل",s1h:"ارفع",s1p:"ارفع شعارك. نعزل الرمز ونستخرج الألوان ونبني كل النسخ.",
+s2h:"اعتمد",s2p:"تعتمد الألوان والشخصية قبل أي توليد.",
+s3h:"استلم العلامة",s3p:"نموذج مجاني ومعاينة للدليل. افتح الطقم الكامل عندما يعجبك.",
+ex_h2:"صنع هنا",ex_p:"ثلاث علامات. نتائج حقيقية بلا تعديل.",
+pr_h2:"الأسعار",tier_free:"مجاني",tier_full:"العلامة الكاملة",
+fr1:"استخراج الشعار وكل النسخ",fr2:"تحليل الألوان والشخصية",fr3:"أيقونة التطبيق والملفات",fr4:"نموذج منتج واحد",fr5:"معاينة الدليل بعلامة مائية",
+fu1:"جميع صور المنتجات الثمانية",fu2:"دليل الهوية الكامل",fu3:"كل الصفحات بدون علامة مائية",fu4:"دفع آمن عبر ميسر",
+pr_cta1:"ابدأ مجانا",pr_cta2:"اصنع علامتك",
+faq_h2:"أسئلة",
+q1:"هل يحفظ شعاري؟",a1:"لا. تعالج الملفات على الخادم وتحذف خلال 24 ساعة ولا تستخدم لأي غرض آخر.",
+q2:"ما المجاني؟",a2:"الاستخراج وتحليل الألوان والشخصية وملفات الشعار ونموذج منتج واحد ومعاينة الدليل.",
+q3:"هل يدعم العلامات العربية؟",a3:"نعم. نستخدم شعارك كما هو تماما ولا نعيد رسمه.",
+q4:"ماذا يفتح مبلغ 35 ريال؟",a4:"بقية صور المنتجات السبعة ودليل الهوية الكامل بدون علامة مائية.",
+q5:"الاسترجاع؟",a5:'دفعت ولم يصلك الملف؟ راسل <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> مع رقم العملية وسنرسل الملف أو نرجع المبلغ كاملا.',
+f_blurb:"شعار يدخل وهوية عاملة تخرج. مصممة لتبدو احترافية لا مولدة.",
+f_product:"المنتج",f_company:"الشركة",f_c1:"اصنع علامة",f_c2:"أمثلة",f_c3:"الأسعار",f_c4:"أسئلة",
+f_s1:"الدعم",f_s2:"مفتوح المصدر",f_mit:"رخصة MIT، استخدمه لأي غرض.",f_by:"من عبدالكريم",f_tag:"كل خط نرسمه يصبح علامة",
+w_up_t:"ارفع شعارك",w_step:"خطوة {a} من {b}",w_drop:"<b>أسقط شعارك هنا</b> أو اضغط للاختيار<br><span class='hint'>PNG أو JPG أو WEBP · الخلفية الشفافة أفضل · حتى 10 MB</span>",
+w_extract:"<b>جار الاستخراج…</b><br><span class='hint'>نعزل الرمز ونستخرج الألوان</span>",
+w_back:"→ ابدأ من جديد",w_conf_t:"اعتمد ألوانك",
+w_conf_l:"استخرجت من شعارك. هذه الملفات نفسها في حزمة التحميل.",
+w_conf_r:"لوحة مقترحة من ألوان شعارك. اضغط أي لون لتعديله ثم اعتمد.",
+w_persona:"شخصية الألوان",w_addcolor:"+ أضف لونا",w_go:"تبدو صحيحة، ابدأ الإنشاء ←",
+w_assets:"حمل الملفات فقط",w_diff:"→ شعار مختلف",w_primary:"أساسي",
+cap_logo:"الأصل",cap_logo_white:"نسخة بيضاء",cap_mark:"الرمز",cap_mark_white:"رمز أبيض",cap_app_badge:"أيقونة التطبيق",
+w_desc_t:"صف العلامة",w_name:"اسم العلامة",w_name_ph:"مثال: واحة",
+w_desc:"ماذا تقدم؟ ولمن؟",w_desc_ph:"محمصة قهوة مختصة للشباب في الرياض",
+w_style:"اختر أسلوب الشعار",w_pal:"اختر لوحة ألوان، وعدلها لاحقا",w_launch:"ولد المقترحات ←",
+sty_minimal:"بسيط",sty_modern:"عصري",sty_organic:"عضوي",sty_playful:"مرح",sty_luxury:"فاخر",sty_tech:"تقني",sty_vintage:"كلاسيكي",sty_handdrawn:"يدوي",sty_mascot:"شخصية",sty_monogram:"حروف",sty_abstract:"تجريدي",sty_calligraphy:"خط عربي",
+e_name:"أعط العلامة اسما.",e_style:"اختر أسلوب الشعار، هذا أمتع جزء.",
+e_server:"تعذر الوصول للخادم. حاول مرة أخرى.",e_start:"تعذر بدء التوليد.",e_extract:"فشل الاستخراج.",
+prog_kit:"نجهز نموذجك",prog_kit_s:"أول صورة منتج ومعاينة الدليل",
+prog_full:"نبني علامتك الكاملة",prog_full_s:"سبعة منتجات إضافية والدليل الكامل",
+prog_con:"نرسم مقترحات الشعار",prog_con_s:"أربعة اتجاهات بأسلوبك وألوانك",
+prog_wait:"يستغرق هذا دقائق قليلة، الصور تظهر واحدة تلو الأخرى.",
+prog_rendering:"جار الرسم…",prog_failed:"تعذر الرسم",
+dead_all:"فشل توليد الصور. قد تكون الخدمة متوقفة مؤقتا، حاول بعد دقائق.",
+dead_lost:"فقدنا تتبع العملية، غالبا أعيد تشغيل الخادم. ابدأ من جديد.",dead_t:"توقف التوليد",dead_btn:"ابدأ من جديد",
+kit_t:"نموذج علامتك جاهز",kit_full_t:"علامتك الكاملة جاهزة",
+kit_deck_t:"دليل هويتك",kit_deck_p:"دليل مصمم من هويتك. عاينه مجانا وافتح كل شيء مقابل 35 ريال.",
+kit_prev:"معاينة مجانية (PDF)",kit_unlock:"افتح العلامة الكاملة، 35 ريال",
+kit_locked:"يفتح: بطاقات العمل والقميص والحقيبة وأيقونة التطبيق والدفتر واللوحة الجدارية والإعلان الخارجي والدليل الكامل.",
+kit_zip:"حمل الملفات (zip)",kit_assets:"حزمة الشعار فقط",kit_new:"علامة جديدة",
+kit_full_zip:"حمل الطقم الكامل (zip)",kit_full_pdf:"الدليل الكامل (PDF)",
+kit_hint:"الملفات متاحة 24 ساعة. حمل ما تحتاجه الآن.",
+con_t:"اختر مقترحك المفضل",con_p:"{n} اتجاهات لعلامة {name}. اختر واحدا ونبني العلامة حوله.",
+con_pick:"ابن العلامة بهذا ←",con_all:"حمل كل المقترحات",con_diff:"→ أسلوب مختلف",
+pay_t:"افتح العلامة الكاملة",pay_c:"دفع آمن",pay_h:"العلامة الكاملة، 35 ريال",
+pay_p:"سبع صور منتجات إضافية ودليل الهوية الكامل بدون علامة مائية. الدفع آمن عبر ميسر ويبدأ التوليد فور الدفع.",
+pay_note:"عمليات البطاقات تتم عبر ميسر ولا نطلع على بيانات بطاقتك.",
+pay_cancel:"→ عودة لنموذجك",pay_loadfail:"تعذر تحميل نموذج الدفع. تحقق من الاتصال وأعد المحاولة.",
+ver_t:"نتحقق من دفعتك",ver_p:"لحظة واحدة، نتحقق مع مزود الدفع…",
+ver_fail_t:"لم يكتمل الدفع",ver_fail_d:"تعذر التحقق من الدفعة.",
+ver_support:'إن خصم المبلغ راسل <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> أو افتح <a href="https://github.com/AbdulkareemKR/brand-identity-generator/issues">تذكرة</a> مع رقم العملية <b>{pid}</b> وسنرسل الملف أو نرجع المبلغ.',
+ver_back:"عودة للاستوديو",ver_err_t:"فشل التحقق",
+ver_err:"تعذر الوصول للخادم، رقم عمليتك <b>{pid}</b>. أعد تحميل الصفحة وسيعاد التحقق تلقائيا.",
+ver_retry:"أعد التحقق",
+gen:"جار التوليد",done_c:"تم",
+persona_warm:"دافئة",persona_cool:"هادئة",persona_earthy:"ترابية",persona_bold:"جريئة",persona_calm:"وديعة",persona_deep:"عميقة",persona_fresh:"منعشة",persona_playful:"مرحة",persona_premium:"فاخرة",
+}};
+const _q=new URLSearchParams(location.search).get("lang");
+let lang=_q||localStorage.getItem("lang")||((navigator.language||"").startsWith("ar")?"ar":"en");
+if(_q)localStorage.setItem("lang",_q);
+function t(k,v){let s=(L[lang]&&L[lang][k])||L.en[k]||k;if(v)for(const key in v)s=s.replaceAll("{"+key+"}",v[key]);return s}
+function setLang(l){
+  lang=l;localStorage.setItem("lang",l);
+  document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-i]").forEach(el=>{el.innerHTML=t(el.dataset.i)});
+  const b=$("#langbtn");if(b)b.textContent=l==="ar"?"EN":"عربي";
+  if($("#step0"))renderStep0();
+}
+
+/* ---------- shared ---------- */
 function stage(no,title,crumb,html){
   $("#stno").textContent=no; $("#sttitle").textContent=title; $("#stcrumb").textContent=crumb||"";
   const b=$("#stbody"); b.innerHTML='<div class="fade">'+html+'</div>';
   $("#studio").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function err(msg){const e=$("#err"); if(e){e.textContent=msg;e.style.display="block"}}
+function renderStep0(){
+  $("#stno").textContent="1"; $("#sttitle").textContent=t("st_title"); $("#stcrumb").textContent="";
+  $("#stbody").innerHTML=`<div class="fade" id="step0"><div class="paths">
+    <button class="path primary" onclick="goUpload()"><h3>${t("pA_h")}</h3><p>${t("pA_p")}</p><span class="go">${t("pA_go")}</span></button>
+    <button class="path" onclick="goScratch()"><h3>${t("pB_h")}</h3><p>${t("pB_p")}</p><span class="go">${t("pB_go")}</span></button>
+  </div></div>`;
+}
+
+/* ---------- palette personality (free analysis, client side) ---------- */
+function persona(pal){
+  if(!pal.length)return"";
+  const rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  let warm=0,sat=0,lum=0;
+  pal.forEach(h=>{const[r,g,b]=rgb(h);warm+=r-b;sat+=Math.max(r,g,b)-Math.min(r,g,b);lum+=0.2126*r+0.7152*g+0.0722*b});
+  const n=pal.length;warm/=n;sat/=n;lum/=n;
+  const w=[];
+  w.push(t(warm>18?"persona_warm":warm<-18?"persona_cool":"persona_earthy"));
+  w.push(t(sat>110?"persona_bold":sat>45?"persona_fresh":"persona_calm"));
+  w.push(t(lum<95?"persona_deep":lum>185?"persona_playful":"persona_premium"));
+  return w.join(" · ");
+}
 
 /* ---------- PATH A: upload ---------- */
 function goUpload(){
   state.mode="upload";
-  stage(2,"Upload your logo","step 2 of 4",`
-    <label class="drop" id="drop">
-      <b>Drop your logo here</b> or click to choose<br>
-      <span class="hint">PNG, JPG or WEBP · transparent PNG works best · up to 10 MB</span>
-      <input type="file" id="file" accept="image/png,image/jpeg,image/webp">
-    </label>
+  stage(2,t("w_up_t"),t("w_step",{a:2,b:4}),`
+    <label class="drop" id="drop">${t("w_drop")}<input type="file" id="file" accept="image/png,image/jpeg,image/webp"></label>
     <p class="err" id="err"></p>
-    <div class="btnrow"><button class="btn ghost" onclick="location.reload()">← Start over</button></div>`);
+    <div class="btnrow"><button class="btn ghost" onclick="renderStep0()">${t("w_back")}</button></div>`);
   const drop=$("#drop"),file=$("#file");
   drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("on")});
   drop.addEventListener("dragleave",()=>drop.classList.remove("on"));
@@ -429,41 +623,42 @@ function goUpload(){
 async function upload(f){
   if(state.busy)return;
   state.busy=true;
-  $("#drop").innerHTML="<b>Extracting…</b><br><span class='hint'>isolating the mark, sampling the palette</span>";
+  $("#drop").innerHTML=t("w_extract");
   const fd=new FormData(); fd.append("logo",f);
   try{
     const r=await fetch(API+"/extract",{method:"POST",body:fd});
     const j=await r.json();
-    if(!j.ok){goUpload();err(j.error||"Extraction failed.");return}
+    if(!j.ok){goUpload();err(j.error||t("e_extract"));return}
     state.pack=j.pack_id; state.palette=j.palette; state.primary=j.primary;
     confirmStage(j);
-  }catch(e){goUpload();err("Could not reach the server. Try again.")}
+  }catch(e){goUpload();err(t("e_server"))}
   finally{state.busy=false}
 }
 function confirmStage(j){
-  const caps={logo:"original",logo_white:"white variant",mark:"mark",mark_white:"mark white",app_badge:"app badge"};
+  const caps={logo:t("cap_logo"),logo_white:t("cap_logo_white"),mark:t("cap_mark"),mark_white:t("cap_mark_white"),app_badge:t("cap_app_badge")};
   let vhtml="";
   for(const[k,v]of Object.entries(j.previews)){
     const dark=k.includes("white");
     vhtml+=`<figure class="${dark?'dark':''}"><img src="${v}" alt="${caps[k]||k}"><figcaption>${caps[k]||k}</figcaption></figure>`;
   }
-  stage(3,"Confirm your colors","step 3 of 4",`
+  stage(3,t("w_conf_t"),t("w_step",{a:3,b:4}),`
     <div class="exgrid">
       <div>
-        <p style="font-size:14.5px;color:var(--mut);margin-bottom:14px;font-weight:300">Extracted from your logo. These exact files go in your download pack.</p>
+        <p style="font-size:14.5px;color:var(--mut);margin-bottom:14px;font-weight:300">${t("w_conf_l")}</p>
         <div class="variants">${vhtml}</div>
       </div>
       <div>
-        <p style="font-size:14.5px;color:var(--mut);margin-bottom:14px;font-weight:300">Suggested palette, sampled from your pixels. Click a chip to adjust, remove any that look like noise, then confirm.</p>
+        <p style="font-size:14.5px;color:var(--mut);margin-bottom:14px;font-weight:300">${t("w_conf_r")}</p>
         <div class="sw" id="sw"></div>
-        <button class="btn ghost" style="margin-top:12px;padding:9px 18px;font-size:13.5px" onclick="addSwatch('#35CA66')">+ Add a color</button>
+        <p class="hint" id="personaLine" style="margin-top:10px"></p>
+        <button class="btn ghost" style="margin-top:8px;padding:9px 18px;font-size:13.5px" onclick="addSwatch('#C4633C')">${t("w_addcolor")}</button>
       </div>
     </div>
     <p class="err" id="err"></p>
     <div class="btnrow">
-      <button class="btn g" onclick="launchLogoJob(null,this)">Looks right, start creating →</button>
-      <a class="btn ghost" href="${API}/pack/${state.pack}.zip">Download assets only</a>
-      <button class="btn ghost" onclick="goUpload()">← Different logo</button>
+      <button class="btn g" onclick="launchLogoJob(null,this)">${t("w_go")}</button>
+      <a class="btn ghost" href="${API}/pack/${state.pack}.zip">${t("w_assets")}</a>
+      <button class="btn ghost" onclick="goUpload()">${t("w_diff")}</button>
     </div>`);
   renderSw();
 }
@@ -472,13 +667,15 @@ function renderSw(){
   state.palette.forEach((h,i)=>{
     const d=document.createElement("div"); d.className="swatch";
     d.innerHTML=`<span class="chip"><input type="color" value="${h}" aria-label="edit color ${h}"></span>
-      <code>${h}</code>${i===0?'<span class="tag">primary</span>':'<button class="del" title="remove" aria-label="remove color">×</button>'}`;
-    d.querySelector("input").addEventListener("input",e=>{state.palette[i]=e.target.value.toUpperCase();d.querySelector("code").textContent=state.palette[i]});
+      <code>${h}</code>${i===0?`<span class="tag">${t("w_primary")}</span>`:'<button class="del" title="remove" aria-label="remove color">×</button>'}`;
+    d.querySelector("input").addEventListener("input",e=>{state.palette[i]=e.target.value.toUpperCase();d.querySelector("code").textContent=state.palette[i];updPersona()});
     const del=d.querySelector(".del");
     if(del)del.addEventListener("click",()=>{state.palette.splice(i,1);renderSw()});
     sw.appendChild(d);
   });
+  updPersona();
 }
+function updPersona(){const p=$("#personaLine");if(p)p.textContent=t("w_persona")+": "+persona(state.palette)}
 function addSwatch(h){if(state.palette.length<6){state.palette.push(h);renderSw()}}
 
 async function launchLogoJob(extra,btn){
@@ -488,43 +685,43 @@ async function launchLogoJob(extra,btn){
   try{
     const r=await fetch(API+"/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const j=await r.json();
-    if(!j.ok){err(j.error||"Could not start generation.");return}
+    if(!j.ok){err(j.error||t("e_start"));return}
     state.job=j.job_id;
-    progressStage("Growing your brand kit","business cards, mug, shirt, tote, app icon, notebook, signage, billboard");
+    progressStage(t("prog_kit"),t("prog_kit_s"));
     poll(showKit);
-  }catch(e){err("Could not reach the server.")}
+  }catch(e){err(t("e_server"))}
   finally{state.busy=false; if(btn)btn.disabled=false}
 }
 
 /* ---------- PATH B: scratch ---------- */
 const PALS=[["#35CA66","#003038","#E9F8EB"],["#1F2A44","#DBC3A5","#F4EFE6"],["#D4F935","#0A0E17","#111827"],
             ["#FF1991","#2B0A1E","#FFE9F3"],["#E76F2C","#3B2317","#FAF3EA"],["#2563EB","#0B1B3A","#EAF1FF"]];
+const STYLE_KEYS=["minimal","modern","organic","playful","luxury","tech","vintage","handdrawn","mascot","monogram","abstract","calligraphy"];
 function goScratch(){
   state.mode="scratch"; state.style=null; state.palette=[];
   let stylecards="";
-  const names={minimal:"Minimal",modern:"Modern",organic:"Organic",playful:"Playful",luxury:"Luxury",tech:"Tech",vintage:"Vintage",handdrawn:"Hand drawn",mascot:"Mascot",monogram:"Monogram",abstract:"Abstract",calligraphy:"Calligraphy"};
-  for(const k in names) stylecards+=`<button class="style" data-k="${k}" onclick="selStyle(this)"><img loading="lazy" src="/assets/styles/${k}.jpg" alt="${names[k]} logo style example"><span>${names[k]}</span></button>`;
+  STYLE_KEYS.forEach(k=>{stylecards+=`<button class="style" data-k="${k}" onclick="selStyle(this)"><img loading="lazy" src="/assets/styles/${k}.jpg" alt="${t('sty_'+k)}"><span>${t('sty_'+k)}</span></button>`});
   let palrow="";
   PALS.forEach((p,i)=>{palrow+=`<button class="pal" data-i="${i}" onclick="selPal(this)" aria-label="palette ${p.join(' ')}">${p.map(c=>`<i style="background:${c}"></i>`).join("")}</button>`});
-  stage(2,"Describe the brand","step 2 of 5",`
+  stage(2,t("w_desc_t"),t("w_step",{a:2,b:5}),`
     <div class="f">
-      <div><label for="bname">Brand name</label><input type="text" id="bname" maxlength="40" placeholder="e.g. Terra"></div>
-      <div><label for="bdesc">What does it do? Who is it for?</label><textarea id="bdesc" maxlength="200" placeholder="Specialty coffee roastery for young professionals in Riyadh"></textarea></div>
-      <div><label>Pick a logo style</label><div class="styles">${stylecards}</div></div>
-      <div><label>Pick a palette, or edit after</label><div class="pals">${palrow}</div></div>
+      <div><label for="bname">${t("w_name")}</label><input type="text" id="bname" maxlength="40" placeholder="${t('w_name_ph')}"></div>
+      <div><label for="bdesc">${t("w_desc")}</label><textarea id="bdesc" maxlength="200" placeholder="${t('w_desc_ph')}"></textarea></div>
+      <div><label>${t("w_style")}</label><div class="styles">${stylecards}</div></div>
+      <div><label>${t("w_pal")}</label><div class="pals">${palrow}</div></div>
     </div>
     <p class="err" id="err"></p>
     <div class="btnrow">
-      <button class="btn t" id="launch" onclick="launchScratch()">Launch brand generation →</button>
-      <button class="btn ghost" onclick="location.reload()">← Start over</button>
+      <button class="btn t" id="launch" onclick="launchScratch()">${t("w_launch")}</button>
+      <button class="btn ghost" onclick="renderStep0()">${t("w_back")}</button>
     </div>`);
 }
 function selStyle(el){document.querySelectorAll(".style").forEach(s=>s.classList.remove("sel"));el.classList.add("sel");state.style=el.dataset.k}
 function selPal(el){document.querySelectorAll(".pal").forEach(s=>s.classList.remove("sel"));el.classList.add("sel");state.palette=PALS[+el.dataset.i].slice()}
 async function launchScratch(){
   state.name=$("#bname").value.trim(); state.desc=$("#bdesc").value.trim();
-  if(!state.name){err("Give the brand a name.");return}
-  if(!state.style){err("Pick a logo style, that is the fun part.");return}
+  if(!state.name){err(t("e_name"));return}
+  if(!state.style){err(t("e_style"));return}
   if(!state.palette.length)state.palette=PALS[0].slice();
   if(state.busy)return;
   state.busy=true; const btn=$("#launch"); if(btn)btn.disabled=true;
@@ -532,19 +729,19 @@ async function launchScratch(){
     const r=await fetch(API+"/generate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({mode:"scratch",name:state.name,desc:state.desc,style:state.style,palette:state.palette})});
     const j=await r.json();
-    if(!j.ok){err(j.error||"Could not start generation.");return}
+    if(!j.ok){err(j.error||t("e_start"));return}
     state.job=j.job_id;
-    progressStage("Sketching logo concepts","six directions in your style and colors",3);
+    progressStage(t("prog_con"),t("prog_con_s"),3);
     poll(showConcepts);
-  }catch(e){err("Could not reach the server.")}
+  }catch(e){err(t("e_server"))}
   finally{state.busy=false; if($("#launch"))$("#launch").disabled=false}
 }
 
 /* ---------- progress + results ---------- */
 function progressStage(title,sub,num){
-  stage(num||4,title,"generating",`
+  stage(num||4,title,t("gen"),`
     <div class="prog">
-      <p style="font-size:14.5px;color:var(--mut);font-weight:300">${sub}. This takes a couple of minutes, images render one by one.</p>
+      <p style="font-size:14.5px;color:var(--mut);font-weight:300">${sub}. ${t("prog_wait")}</p>
       <div class="branch"><i id="bar"></i></div>
       <div class="plist" id="plist"></div>
       <p class="err" id="err"></p>
@@ -558,54 +755,81 @@ async function poll(done){
     const j=await r.json();
     pollFails=0;
     const pct=j.total?Math.round(100*j.done/j.total):4;
-    $("#bar").style.width=Math.max(pct,4)+"%";
-    const pl=$("#plist"); pl.innerHTML="";
-    j.items.forEach(it=>{
-      const li=document.createElement("div"); li.className="pitem "+(it.error?"bad":"ok");
-      li.innerHTML=`<span class="dot">${it.error?"!":"✓"}</span>${esc(it.name).replace(/_/g," ")}${it.error?" — could not render":""}`;
-      pl.appendChild(li);
-    });
-    if(j.status!=="done"&&j.total>j.items.length){
-      const li=document.createElement("div"); li.className="pitem doing";
-      li.innerHTML=`<span class="dot"></span>rendering…`; pl.appendChild(li);
+    if($("#bar"))$("#bar").style.width=Math.max(pct,4)+"%";
+    const pl=$("#plist");
+    if(pl){
+      pl.innerHTML="";
+      j.items.forEach(it=>{
+        const li=document.createElement("div"); li.className="pitem "+(it.error?"bad":"ok");
+        li.innerHTML=`<span class="dot">${it.error?"!":"✓"}</span>${esc(it.name).replace(/_/g," ")}${it.error?" — "+t("prog_failed"):""}`;
+        pl.appendChild(li);
+      });
+      if(j.status!=="done"&&j.total>j.items.length){
+        const li=document.createElement("div"); li.className="pitem doing";
+        li.innerHTML=`<span class="dot"></span>${t("prog_rendering")}`; pl.appendChild(li);
+      }
     }
     if(j.status==="done"){
-      if(!j.items.some(i=>!i.error)){pollDead("Every image failed to render. The image service may be down, please try again in a few minutes.");return}
+      if(!j.items.some(i=>!i.error)){pollDead(t("dead_all"));return}
       done(j);return
     }
   }catch(e){
     pollFails++;
-    if(e&&e.fatal||pollFails>=8){pollDead("Lost track of this job, likely a server restart. Please start again.");return}
+    if(e&&e.fatal||pollFails>=8){pollDead(t("dead_lost"));return}
   }
   setTimeout(()=>poll(done),2500);
 }
 function pollDead(msg){
-  stage("!","Generation stopped","",`
+  stage("!",t("dead_t"),"",`
     <p style="font-size:15px;color:var(--mut);max-width:52ch">${msg}</p>
-    <div class="btnrow"><button class="btn g" onclick="location.reload()">Start over</button></div>`);
+    <div class="btnrow"><button class="btn g" onclick="location.reload()">${t("dead_btn")}</button></div>`);
 }
 function showKit(j){
   state.lastKit=j;
   const good=j.items.filter(i=>!i.error);
+  const full=j.full;
   let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')"><figcaption>${esc(i.name).replace(/_/g," ")}</figcaption></figure>`).join("");
   const deck=j.preview?`
     <div style="margin-top:26px;border:1.5px solid var(--line);border-radius:16px;padding:22px 24px;background:var(--paper)">
-      <b style="font-family:var(--fd);font-size:18px;color:var(--ink)">Your brand guideline document</b>
-      <p style="font-size:14px;color:var(--mut);font-weight:300;margin:6px 0 14px;max-width:62ch">A designed multi page guideline built from this kit: logo suite, proportional color system, typography, and one page per application. Preview it free, unlock the complete document for 35 SAR.</p>
-      <div class="btnrow" style="margin-top:0">
-        <a class="btn ghost" href="${API}${j.preview}">Free preview (PDF)</a>
-        <button class="btn g" onclick="payStage()">Get the full guideline — 35 SAR</button>
+      <b style="font-family:var(--fd);font-size:18px;color:var(--ink)">${t("kit_deck_t")}</b>
+      <p style="font-size:14px;color:var(--mut);font-weight:300;margin:6px 0 4px;max-width:62ch">${full?"":t("kit_deck_p")}</p>
+      ${full?"":`<p class="hint" style="margin:0 0 14px">${t("kit_locked")}</p>`}
+      <div class="btnrow" style="margin-top:${full?"14px":"0"}">
+        ${full&&state.fullUrl?`<a class="btn g" href="${API}${state.fullUrl}">${t("kit_full_pdf")}</a>`:""}
+        <a class="btn ghost" href="${API}${j.preview}">${t("kit_prev")}</a>
+        ${full?"":`<button class="btn g" onclick="payStage()">${t("kit_unlock")}</button>`}
       </div>
     </div>`:"";
-  stage(state.mode==="scratch"?5:4,"Your brand kit is ready","done",`
+  stage(state.mode==="scratch"?5:4,full?t("kit_full_t"):t("kit_t"),t("done_c"),`
     <div class="gal">${g}</div>
     ${deck}
     <div class="btnrow">
-      <a class="btn t" href="${API}/pack/${state.job}.zip">Download the kit (zip)</a>
-      ${state.pack?`<a class="btn ghost" href="${API}/pack/${state.pack}.zip">Assets pack only</a>`:""}
-      <button class="btn ghost" onclick="location.reload()">New brand</button>
+      <a class="btn t" href="${API}/pack/${state.job}.zip">${full?t("kit_full_zip"):t("kit_zip")}</a>
+      ${state.pack?`<a class="btn ghost" href="${API}/pack/${state.pack}.zip">${t("kit_assets")}</a>`:""}
+      <button class="btn ghost" onclick="location.reload()">${t("kit_new")}</button>
     </div>
-    <p class="hint" style="margin-top:16px">Files stay available for 24 hours. Download what you need now.</p>`);
+    <p class="hint" style="margin-top:16px">${t("kit_hint")}</p>`);
+}
+function showConcepts(j){
+  const good=j.items.filter(i=>!i.error);
+  state.concepts=good;
+  let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')">
+    <button class="pick" onclick="pickConcept('${esc(i.name)}')">${t("con_pick")}</button></figure>`).join("");
+  stage(3,t("con_t"),t("w_step",{a:3,b:5}),`
+    <p style="font-size:14.5px;color:var(--mut);font-weight:300;margin-bottom:16px">${t("con_p",{n:good.length,name:esc(state.name)})}</p>
+    <div class="gal">${g}</div>
+    <p class="err" id="err"></p>
+    <div class="btnrow">
+      <a class="btn ghost" href="${API}/pack/${state.job}.zip">${t("con_all")}</a>
+      <button class="btn ghost" onclick="goScratch()">${t("con_diff")}</button>
+    </div>`);
+}
+function pickConcept(name){
+  if(state.busy)return;
+  document.querySelectorAll(".pick").forEach(b=>b.disabled=true);
+  const cj=state.job;
+  state.pack=null;
+  launchLogoJob({concept:cj+"/"+name+".png"});
 }
 
 /* ---------- payment (Moyasar) ---------- */
@@ -614,28 +838,28 @@ function loadMoyasar(cb){
   if(window.Moyasar)return cb();
   const l=document.createElement("link");l.rel="stylesheet";l.href="https://cdn.moyasar.com/mpf/1.15.0/moyasar.css";document.head.appendChild(l);
   const s=document.createElement("script");s.src="https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";s.onload=cb;
-  s.onerror=()=>err("Could not load the payment form. Check your connection and retry.");
+  s.onerror=()=>err(t("pay_loadfail"));
   document.head.appendChild(s);
 }
 function payStage(){
   const job=state.job;
-  stage("﷼","Unlock the full guideline","secure payment",`
+  stage("﷼",t("pay_t"),t("pay_c"),`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,44px)">
       <div>
-        <b style="font-family:var(--fd);font-size:19px">Full brand guideline — 35 SAR</b>
-        <p style="font-size:14px;color:var(--mut);font-weight:300;margin:8px 0 14px">Complete multi page PDF, no watermark: cover, logo suite, color system, typography, and every application page. Paid securely through Moyasar. The download starts right after payment.</p>
-        <p class="hint">Card payments are processed by Moyasar; we never see your card details.</p>
+        <b style="font-family:var(--fd);font-size:19px">${t("pay_h")}</b>
+        <p style="font-size:14px;color:var(--mut);font-weight:300;margin:8px 0 14px">${t("pay_p")}</p>
+        <p class="hint">${t("pay_note")}</p>
       </div>
       <div><div class="mysr-form"></div></div>
     </div>
     <p class="err" id="err"></p>
-    <div class="btnrow"><button class="btn ghost" onclick="state.lastKit?showKit(state.lastKit):location.reload()">← Back to your kit</button></div>`);
+    <div class="btnrow"><button class="btn ghost" onclick="state.lastKit?showKit(state.lastKit):location.reload()">${t("pay_cancel")}</button></div>`);
   loadMoyasar(()=>{
     Moyasar.init({
       element:".mysr-form",
       amount:3500,
       currency:"SAR",
-      description:"Full brand guideline PDF",
+      description:"Full brand kit and guideline",
       publishable_api_key:MOYASAR_PK,
       callback_url:location.origin+"/?job="+job,
       methods:["creditcard"],
@@ -647,59 +871,40 @@ async function handleReturn(){
   const q=new URLSearchParams(location.search);
   const pid=q.get("id"), job=q.get("job");
   if(!pid||!job)return;
-  stage("﷼","Confirming your payment","",`<p style="font-size:15px;color:var(--mut)">One moment, verifying with the payment provider…</p><p class="err" id="err"></p>`);
-  const support=`If you were charged, email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> or open a <a href="https://github.com/AbdulkareemKR/brand-identity-generator/issues">GitHub issue</a> with your payment reference <b>${esc(pid)}</b> and we will send your document or refund you.`;
+  stage("﷼",t("ver_t"),"",`<p style="font-size:15px;color:var(--mut)">${t("ver_p")}</p><p class="err" id="err"></p>`);
+  const support=t("ver_support",{pid:esc(pid)});
   try{
     const r=await fetch(`${API}/pay/verify?payment_id=${encodeURIComponent(pid)}&job=${encodeURIComponent(job)}`);
     const j=await r.json();
     if(!j.ok){
-      stage("!","Payment not completed","",`
-        <p style="font-size:15px;color:var(--mut);max-width:60ch">${esc(j.error||"The payment could not be verified.")} ${support}</p>
-        <div class="btnrow"><button class="btn g" onclick="history.replaceState(null,'','/');location.reload()">Back to the studio</button></div>`);
+      stage("!",t("ver_fail_t"),"",`
+        <p style="font-size:15px;color:var(--mut);max-width:60ch">${esc(j.error||t("ver_fail_d"))} ${support}</p>
+        <div class="btnrow"><button class="btn g" onclick="history.replaceState(null,'','/');location.reload()">${t("ver_back")}</button></div>`);
       return;
     }
     history.replaceState(null,"","/");
-    stage("✓","Paid, thank you","",`
-      <p style="font-size:15px;color:var(--mut);max-width:56ch">Your full brand guideline is downloading. Keep the link if you need it again today; generated files are cleaned up after 24 hours.</p>
-      <div class="btnrow">
-        <a class="btn g" href="${API}${j.url}">Download the full guideline (PDF)</a>
-        <button class="btn ghost" onclick="location.reload()">New brand</button>
-      </div>`);
-    location.href=API+j.url;
+    state.job=job; state.fullUrl=j.url; state.mode="upload";
+    progressStage(t("prog_full"),t("prog_full_s"));
+    poll(showKit);
   }catch(e){
-    stage("!","Verification failed","",`<p style="font-size:15px;color:var(--mut);max-width:60ch">Could not reach the server, your payment reference is <b>${esc(pid)}</b>. Reload to retry, verification will run again automatically. ${support}</p>
-      <div class="btnrow"><button class="btn g" onclick="location.reload()">Retry verification</button></div>`);
+    stage("!",t("ver_err_t"),"",`<p style="font-size:15px;color:var(--mut);max-width:60ch">${t("ver_err",{pid:esc(pid)})} ${support}</p>
+      <div class="btnrow"><button class="btn g" onclick="location.reload()">${t("ver_retry")}</button></div>`);
   }
-}
-handleReturn();
-function showConcepts(j){
-  const good=j.items.filter(i=>!i.error);
-  state.concepts=good;
-  let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')">
-    <button class="pick" onclick="pickConcept('${esc(i.name)}')">Build the brand with this →</button></figure>`).join("");
-  stage(3,"Pick your favorite concept","step 3 of 5",`
-    <p style="font-size:14.5px;color:var(--mut);font-weight:300;margin-bottom:16px">${good.length} direction${good.length>1?"s":""} for ${esc(state.name)}. Pick one and we build the full mockup kit around it, or download them all.</p>
-    <div class="gal">${g}</div>
-    <p class="err" id="err"></p>
-    <div class="btnrow">
-      <a class="btn ghost" href="${API}/pack/${state.job}.zip">Download all concepts</a>
-      <button class="btn ghost" onclick="goScratch()">← Different style</button>
-    </div>`);
-}
-function pickConcept(name){
-  if(state.busy)return;
-  document.querySelectorAll(".pick").forEach(b=>b.disabled=true);
-  const cj=state.job;
-  state.pack=null;
-  launchLogoJob({concept:cj+"/"+name+".png"});
 }
 
 /* ---------- misc ---------- */
 function lb(u){$("#lbimg").src=u;$("#lb").classList.add("on")}
 document.querySelectorAll(".exshow img").forEach(im=>im.addEventListener("click",()=>lb(im.src)));
+// style marquee: 12 cards, duplicated track for a seamless loop
+(function(){const tr=document.getElementById("marqtrack");if(!tr)return;
+  let h="";STYLE_KEYS.forEach(k=>{h+=`<img src="/assets/styles/${k}.jpg" alt="" loading="lazy">`});
+  tr.innerHTML=h+h;})();
 // scroll reveal
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12,rootMargin:"0px 0px -40px 0px"});
 document.querySelectorAll(".reveal:not(.in)").forEach(el=>io.observe(el));
+setLang(lang);
+handleReturn();
+
 </script>
 </body>
 </html>
