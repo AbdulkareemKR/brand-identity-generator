@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Stats — Brand Identity Generator</title>
+<meta name="description" content="Public, live analytics for the Brand Identity Generator: site visits and actions like briefs composed, installs copied and logos uploaded. No cookies, no tracking of you.">
+<link rel="canonical" href="https://abdulkareemkr.github.io/brand-identity-generator/stats/">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Crect width='240' height='240' rx='56' fill='%23C4633C'/%3E%3Cpath d='M52 164 Q120 104 188 164' fill='none' stroke='%23F6EEE3' stroke-width='18' stroke-linecap='round'/%3E%3Ccircle cx='120' cy='80' r='14' fill='%23F6EEE3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F6EEE3;--cream2:#EFE3D2;--ink:#2E201A;--ink-soft:#5C4A3D;--terra:#C4633C;--clay:#E2A583;--sage:#7E8C6F;--line:#E0D2BE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Karla',sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.fr{font-family:'Fraunces',serif}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+header{border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px clamp(20px,4vw,48px);max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;text-decoration:none}
+.brand svg{width:30px;height:30px}
+.nav a.back{text-decoration:none;font-weight:700;font-size:14px;border:2px solid var(--ink);padding:8px 18px;border-radius:999px;transition:.2s}
+.nav a.back:hover{background:var(--ink);color:var(--cream)}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);margin-top:clamp(40px,6vw,72px)}
+.eyebrow::before{content:'';width:34px;height:3px;background:var(--terra);border-radius:2px}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(36px,5.4vw,64px);line-height:1.06;margin:14px 0 10px}
+p.sub{color:var(--ink-soft);max-width:60ch}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin:clamp(32px,5vw,56px) 0}
+.card{border:1px solid var(--line);background:#FFFDF9;border-radius:18px;padding:26px 24px;position:relative;overflow:hidden}
+.card.hero{background:var(--terra);border-color:var(--terra);color:var(--cream)}
+.card .lbl{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.card .num{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(38px,4.6vw,56px);line-height:1.1;margin-top:6px}
+.card .hint{font-size:13.5px;margin-top:4px;opacity:.7}
+.num[data-loading]::after{content:'…';animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.foot-note{border-top:1px solid var(--line);margin-top:clamp(40px,6vw,72px);padding:26px 0 60px;color:var(--ink-soft);font-size:14.5px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.dash{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#FFFDF9}
+.dash iframe{width:100%;height:900px;border:0;display:block}
+.dash .fallback{padding:40px;text-align:center}
+.btn{display:inline-block;font-weight:700;text-decoration:none;padding:13px 26px;border-radius:999px;background:var(--terra);color:var(--cream);transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<header>
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="../">
+      <svg viewBox="0 0 240 240" aria-hidden="true"><rect width="240" height="240" rx="56" fill="#C4633C"/><path d="M52 164 Q120 104 188 164" fill="none" stroke="#F6EEE3" stroke-width="18" stroke-linecap="round"/><circle cx="120" cy="80" r="14" fill="#F6EEE3"/></svg>
+      brand identity generator
+    </a>
+    <a class="back" href="../">← Back to site</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <p class="eyebrow">Open metrics</p>
+  <h1>Everything this site sees, <em class="fr" style="color:var(--terra)">you</em> see.</h1>
+  <p class="sub">Live, public numbers straight from the analytics backend. Counted without cookies and without tracking anyone. Updated the moment you load this page.</p>
+
+  <div class="cards" role="list">
+    <div class="card hero" role="listitem"><span class="lbl">Total visits</span><div class="num" id="n-total" data-loading>–</div><div class="hint">homepage pageviews</div></div>
+    <div class="card" role="listitem"><span class="lbl">Briefs copied</span><div class="num" id="n-brief" data-loading>–</div><div class="hint">composed and taken to Claude Code</div></div>
+    <div class="card" role="listitem"><span class="lbl">Installs copied</span><div class="num" id="n-install" data-loading>–</div><div class="hint">clone command copies</div></div>
+    <div class="card" role="listitem"><span class="lbl">Logos uploaded</span><div class="num" id="n-logo" data-loading>–</div><div class="hint">palettes sampled in browser</div></div>
+    <div class="card" role="listitem"><span class="lbl">GitHub clicks</span><div class="num" id="n-github" data-loading>–</div><div class="hint">visits to the repo</div></div>
+  </div>
+
+  <p class="eyebrow">Full dashboard</p>
+  <h1 style="font-size:clamp(26px,3.4vw,40px)">Referrers, countries, devices, history.</h1>
+  <div class="dash" style="margin-top:26px">
+    <iframe id="gcframe" title="Full public analytics dashboard" loading="lazy" src="https://GC_CODE.goatcounter.com"></iframe>
+    <div class="fallback" id="fallback" hidden>
+      <p style="margin-bottom:18px">The dashboard prefers its own tab.</p>
+      <a class="btn" href="https://GC_CODE.goatcounter.com">Open the live dashboard ↗</a>
+    </div>
+  </div>
+</main>
+
+<footer class="foot-note wrap">
+  <span>Powered by <a href="https://www.goatcounter.com">GoatCounter</a>, open source and privacy friendly.</span>
+  <span><a href="https://GC_CODE.goatcounter.com">Raw dashboard ↗</a></span>
+</footer>
+
+<script>
+const GC='https://GC_CODE.goatcounter.com';
+async function fillCount(id,path){
+  const el=document.getElementById(id);
+  try{
+    const r=await fetch(`${GC}/counter/${encodeURIComponent(path)}.json`);
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    el.textContent=j.count||'0';
+  }catch(e){el.textContent='0'}
+  el.removeAttribute('data-loading');
+}
+fillCount('n-total','/brand-identity-generator/');
+fillCount('n-brief','copy-brief');
+fillCount('n-install','copy-install');
+fillCount('n-logo','logo-upload');
+fillCount('n-github','github-click');
+</script>
+<script data-goatcounter="https://GC_CODE.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
