@@ -15,7 +15,7 @@ slides, no box-shadow (rasterizes as a solid rectangle), print-color-adjust.
 
 Usage: build_deck(job_dir, name, palette) -> {"preview": path, "full": path}
 """
-import os, base64, subprocess, tempfile
+import os, re, base64, subprocess
 
 CHROME = os.environ.get("CHROME_BIN", "google-chrome")
 
@@ -27,7 +27,7 @@ PRODUCT_CAPTIONS = {
     "app_icon": ("App icon", "The badge stands alone: solid primary square, symbol centered, no text."),
     "notebook": ("Stationery", "Foil stamped mark on the darkest brand color. Small, confident, premium."),
     "signage": ("Signage", "Dimensional letters in daylight. Clear space scales with the letter height."),
-    "billboard": ("Out of home", "The logo owns the panel. Flat brand color, generous margins, nothing else."),
+    "billboard": ("Out of home", "Panels read as complete ads: logo, accent CTA shape, generous margins."),
 }
 
 
@@ -58,12 +58,14 @@ def _rgb(hexc):
 def build_deck(job_dir, name, palette, out_dir=None):
     out_dir = out_dir or job_dir
     name = (name or "Your brand").strip()[:40]
-    pal = [p for p in (palette or []) if p.startswith("#")][:6] or ["#C4633C", "#2E201A", "#F6EEE3"]
+    pal = [p for p in (palette or []) if re.match(r"^#[0-9a-fA-F]{6}$", p)][:6] or ["#C4633C", "#2E201A", "#F6EEE3"]
+    safe_name = (name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
     # roles: accent = most saturated-ish first entry, dark = lowest luma, light tint from accent
     dark = min(pal, key=_luma)
     accent = pal[0] if pal[0] != dark or len(pal) == 1 else pal[1 % len(pal)]
     paper = _tint(accent, 0.94)
     mint = _tint(accent, 0.85)
+    eyebrow = accent if _luma(accent) < 170 else dark
 
     A = os.path.join(job_dir, "assets")
     def asset(fn):
@@ -76,18 +78,25 @@ def build_deck(job_dir, name, palette, out_dir=None):
     badge = asset("app-badge.png")
     # concept-based jobs store the picked concept as the only asset
     if not logo:
-        for fn in sorted(os.listdir(job_dir)):
-            if fn.startswith("concept_") and fn.endswith(".png"):
-                logo = logo_w = mark = mark_w = _b64(os.path.join(job_dir, fn))
-                break
+        for d in (job_dir, A):
+            if logo or not os.path.isdir(d):
+                continue
+            for fn in sorted(os.listdir(d)):
+                if fn.startswith("concept_") and fn.endswith(".png"):
+                    logo = logo_w = mark = mark_w = _b64(os.path.join(d, fn))
+                    break
     if not logo:
         raise ValueError("no logo asset in job dir")
 
     mocks = []
     for key, (title, cap) in PRODUCT_CAPTIONS.items():
         p = os.path.join(job_dir, key + ".png")
-        if os.path.exists(p):
-            mocks.append((key, title, cap, _b64(p)))
+        if not os.path.exists(p):
+            continue
+        # the generated app icon scene drifts (pouches, tiles); the badge asset IS
+        # the icon, so show it directly and stay correct every time
+        img = badge if (key == "app_icon" and badge) else _b64(p)
+        mocks.append((key, title, cap, img))
 
     css = f"""
     @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Karla:wght@300;400;600;700&display=swap');
@@ -96,7 +105,7 @@ def build_deck(job_dir, name, palette, out_dir=None):
     .slide{{width:1280px;height:720px;position:relative;overflow:hidden;background:{paper};page-break-after:always;margin:0 auto}}
     h1,h2,h3,.sora{{font-family:'Sora',sans-serif}}
     .pg{{position:absolute;right:40px;bottom:26px;font-size:12px;letter-spacing:.14em;color:{dark};opacity:.5}}
-    .eyebrow{{font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:{accent}}}
+    .eyebrow{{font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:{eyebrow}}}
     .divider{{background:{dark};color:{paper}}}
     .divider .big{{position:absolute;left:70px;bottom:40px;font-size:200px;font-weight:800;opacity:.14;font-family:'Sora';line-height:1}}
     .divider h2{{position:absolute;left:74px;top:300px;font-size:56px;color:{paper}}}
@@ -113,7 +122,8 @@ def build_deck(job_dir, name, palette, out_dir=None):
         return f"""<div class="slide" style="background:{dark};display:grid;place-items:center">
         <div style="text-align:center">
           <img src="{logo_w}" style="max-width:520px;max-height:190px;object-fit:contain">
-          <div style="margin-top:44px;color:{paper};opacity:.85;font-size:15px;letter-spacing:.3em;text-transform:uppercase" class="sora">Brand guidelines</div>
+          <div style="margin-top:34px;color:{paper};font-size:26px;font-weight:700;letter-spacing:.06em" class="sora">{safe_name}</div>
+          <div style="margin-top:14px;color:{paper};opacity:.85;font-size:15px;letter-spacing:.3em;text-transform:uppercase" class="sora">Brand guidelines</div>
           <div style="margin-top:10px;color:{accent};font-size:13px;letter-spacing:.18em">2026 EDITION</div>
         </div>{wm if w else ''}</div>"""
 
@@ -121,8 +131,8 @@ def build_deck(job_dir, name, palette, out_dir=None):
         items = ["01 Logo", "02 Color", "03 Typography", "04 Applications", "05 Thank you"]
         lis = "".join(f'<div style="display:flex;gap:26px;align-items:baseline;padding:17px 0;border-bottom:1px solid {mint}"><span class="sora" style="color:{accent};font-weight:800;font-size:22px">{i.split()[0]}</span><span style="font-size:24px;font-weight:600" class="sora">{i.split(maxsplit=1)[1]}</span></div>' for i in items)
         return f"""<div class="slide" style="padding:80px 110px">
-        <div class="eyebrow">Contents</div>
-        <h1 style="font-size:52px;margin:14px 0 40px">What lives inside</h1>
+        <div class="eyebrow">Overview</div>
+        <h1 style="font-size:52px;margin:14px 0 40px">Contents</h1>
         <div style="columns:2;column-gap:80px">{lis}</div>
         <span class="pg">02</span>{wm if w else ''}</div>"""
 
@@ -131,12 +141,16 @@ def build_deck(job_dir, name, palette, out_dir=None):
 
     def logo_suite(pg, w=False):
         cells = ""
-        for src, bg, cap in [(logo, "#FDFCFA", "Primary"), (logo_w, dark, "On dark"), (mark, "#FDFCFA", "Mark"), (badge or mark, mint, "App badge")]:
+        tiles = [(logo, "#FDFCFA", "Primary"), (logo_w, dark, "On dark")]
+        if mark and mark != logo:  # skip a duplicate tile when the logo IS the mark
+            tiles.append((mark, "#FDFCFA", "Mark"))
+        tiles.append((badge or mark, mint, "App badge"))
+        for src, bg, cap in tiles:
             if not src: continue
             cells += f'<div style="background:{bg};border:1px solid {mint};border-radius:16px;display:grid;place-items:center;padding:26px"><img src="{src}" style="max-width:78%;max-height:120px;object-fit:contain"></div><div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:{accent};font-weight:700;margin:8px 0 0 4px">{cap}</div>'
         return f"""<div class="slide" style="padding:70px 110px">
         <div class="eyebrow">Logo</div>
-        <h1 style="font-size:44px;margin:12px 0 8px">One mark, every surface</h1>
+        <h1 style="font-size:44px;margin:12px 0 8px">Logo variants</h1>
         <p style="font-size:15px;color:{dark};opacity:.75;max-width:60ch;font-weight:300">Use the supplied files exactly as given. Never redraw, stretch, recolor, or crowd the mark. Clear space equals the height of its tallest letter on every side.</p>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:auto;gap:6px 18px;margin-top:34px">{cells}</div>
         <span class="pg">{pg}</span>{wm if w else ''}</div>"""
@@ -153,21 +167,21 @@ def build_deck(job_dir, name, palette, out_dir=None):
             <div style="color:{tcol};opacity:.8;font-size:11.5px">RGB {_rgb(c)} · {round(100*s/total)}%</div></div>"""
         return f"""<div class="slide" style="padding:70px 110px">
         <div class="eyebrow">Color</div>
-        <h1 style="font-size:44px;margin:12px 0 8px">Proportion is the palette</h1>
-        <p style="font-size:15px;opacity:.75;max-width:58ch;font-weight:300">Each block's width is its share of any layout. Lead with the dominant colors; the small blocks are accents, never backgrounds.</p>
+        <h1 style="font-size:44px;margin:12px 0 8px">Color palette</h1>
+        <p style="font-size:15px;opacity:.75;max-width:58ch;font-weight:300">Each block's width is its share of any layout. The two largest blocks carry backgrounds and type; keep the smallest strictly for accents.</p>
         <div style="display:flex;gap:14px;height:330px;margin-top:36px">{blocks}</div>
         <span class="pg">{pg}</span>{wm if w else ''}</div>"""
 
     def typography(pg, w=False):
         return f"""<div class="slide" style="padding:70px 110px">
         <div class="eyebrow">Typography</div>
-        <h1 style="font-size:44px;margin:12px 0 34px">A confident pairing</h1>
+        <h1 style="font-size:44px;margin:12px 0 34px">Type pairing</h1>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px">
           <div><div class="sora" style="font-size:120px;font-weight:800;line-height:1">Aa</div>
-            <div class="sora" style="font-size:22px;font-weight:700;margin-top:10px">Sora — display</div>
+            <div class="sora" style="font-size:22px;font-weight:700;margin-top:10px">Sora · display</div>
             <p style="font-size:14px;opacity:.7;font-weight:300">Headlines, numbers, navigation. Weights 600 to 800. Tight leading, generous size jumps.</p></div>
           <div><div style="font-family:'Karla';font-size:120px;font-weight:300;line-height:1">Aa</div>
-            <div class="sora" style="font-size:22px;font-weight:700;margin-top:10px">Karla — body</div>
+            <div class="sora" style="font-size:22px;font-weight:700;margin-top:10px">Karla · body</div>
             <p style="font-size:14px;opacity:.7;font-weight:300">Paragraphs, captions, interface copy. Weights 300 to 700. Never below 13px in print.</p></div>
         </div>
         <div style="margin-top:36px;border-top:1px solid {mint};padding-top:18px;font-size:15px;opacity:.7;font-weight:300">Swap for your licensed brand faces at the same roles and weights. The system holds as long as display stays bold and body stays quiet.</div>
@@ -194,11 +208,11 @@ def build_deck(job_dir, name, palette, out_dir=None):
         </div></div>"""
 
     def thanks():
-        return f"""<div class="slide" style="background:{accent};display:grid;place-items:center">
+        return f"""<div class="slide" style="background:{dark};display:grid;place-items:center">
         <div style="text-align:center">
-          <img src="{mark_w or logo_w}" style="max-height:130px;max-width:300px;object-fit:contain">
-          <h1 style="color:#fff;font-size:60px;margin-top:26px">Thank you</h1>
-          <div style="color:#fff;opacity:.85;font-size:14px;letter-spacing:.2em;margin-top:8px" class="sora">MADE AT BRAND.SADAORG.COM</div>
+          <img src="{logo_w}" style="max-height:130px;max-width:340px;object-fit:contain">
+          <h1 style="color:{paper};font-size:60px;margin-top:26px">Thank you</h1>
+          <div style="color:{accent};font-size:14px;letter-spacing:.2em;margin-top:8px" class="sora">{safe_name} · MADE AT BRAND.SADAORG.COM</div>
         </div></div>"""
 
     # ---- full deck ----

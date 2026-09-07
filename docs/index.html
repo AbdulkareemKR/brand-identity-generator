@@ -285,6 +285,7 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
   <details><summary>Can it do Arabic brands?</summary><p>Yes. The extraction is script agnostic and the full skill builds complete RTL Arabic decks. Wordmarks with Arabic letters are composited from your real PNG, never redrawn by AI.</p></details>
   <details><summary>What powers the mockups?</summary><p>gpt-image-1 image edits with your exact mark passed as a reference at high input fidelity, so the letters survive. Generation is rate limited to keep the service free.</p></details>
   <details><summary>What costs money and what is free?</summary><p>Everything you see is free: extraction, the asset pack, the mockup kit, and a watermarked preview of your guideline document. The complete guideline PDF, every page and no watermark, costs 35 SAR, paid securely through Moyasar. We never see your card details.</p></details>
+  <details><summary>Refunds and payment problems?</summary><p>If you paid and did not receive your document, email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> or open a GitHub issue with your payment reference and we will send the file or refund you in full. Files are kept 24 hours, so download promptly.</p></details>
 </section></div>
 
 <footer>
@@ -512,6 +513,7 @@ function pollDead(msg){
     <div class="btnrow"><button class="btn g" onclick="location.reload()">Start over</button></div>`);
 }
 function showKit(j){
+  state.lastKit=j;
   const good=j.items.filter(i=>!i.error);
   let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')"><figcaption>${esc(i.name).replace(/_/g," ")}</figcaption></figure>`).join("");
   const deck=j.preview?`
@@ -555,7 +557,7 @@ function payStage(){
       <div><div class="mysr-form"></div></div>
     </div>
     <p class="err" id="err"></p>
-    <div class="btnrow"><button class="btn ghost" onclick="location.reload()">← Cancel</button></div>`);
+    <div class="btnrow"><button class="btn ghost" onclick="state.lastKit?showKit(state.lastKit):location.reload()">← Back to your kit</button></div>`);
   loadMoyasar(()=>{
     Moyasar.init({
       element:".mysr-form",
@@ -573,17 +575,18 @@ async function handleReturn(){
   const q=new URLSearchParams(location.search);
   const pid=q.get("id"), job=q.get("job");
   if(!pid||!job)return;
-  history.replaceState(null,"","/");
   stage("﷼","Confirming your payment","",`<p style="font-size:15px;color:var(--mut)">One moment, verifying with the payment provider…</p><p class="err" id="err"></p>`);
+  const support=`If you were charged, email <a href="mailto:support@sadaorg.com">support@sadaorg.com</a> or open a <a href="https://github.com/AbdulkareemKR/brand-identity-generator/issues">GitHub issue</a> with your payment reference <b>${esc(pid)}</b> and we will send your document or refund you.`;
   try{
     const r=await fetch(`${API}/pay/verify?payment_id=${encodeURIComponent(pid)}&job=${encodeURIComponent(job)}`);
     const j=await r.json();
     if(!j.ok){
       stage("!","Payment not completed","",`
-        <p style="font-size:15px;color:var(--mut);max-width:56ch">${esc(j.error||"The payment could not be verified.")} If you were charged, contact us with your payment reference and we will sort it out.</p>
-        <div class="btnrow"><button class="btn g" onclick="location.reload()">Back to the studio</button></div>`);
+        <p style="font-size:15px;color:var(--mut);max-width:60ch">${esc(j.error||"The payment could not be verified.")} ${support}</p>
+        <div class="btnrow"><button class="btn g" onclick="history.replaceState(null,'','/');location.reload()">Back to the studio</button></div>`);
       return;
     }
+    history.replaceState(null,"","/");
     stage("✓","Paid, thank you","",`
       <p style="font-size:15px;color:var(--mut);max-width:56ch">Your full brand guideline is downloading. Keep the link if you need it again today; generated files are cleaned up after 24 hours.</p>
       <div class="btnrow">
@@ -592,8 +595,8 @@ async function handleReturn(){
       </div>`);
     location.href=API+j.url;
   }catch(e){
-    stage("!","Verification failed","",`<p style="font-size:15px;color:var(--mut)">Could not reach the server. Reload this page to retry; your payment reference is ${esc(pid)}.</p>
-      <div class="btnrow"><button class="btn g" onclick="location.reload()">Retry</button></div>`);
+    stage("!","Verification failed","",`<p style="font-size:15px;color:var(--mut);max-width:60ch">Could not reach the server, your payment reference is <b>${esc(pid)}</b>. Reload to retry, verification will run again automatically. ${support}</p>
+      <div class="btnrow"><button class="btn g" onclick="location.reload()">Retry verification</button></div>`);
   }
 }
 handleReturn();

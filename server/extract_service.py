@@ -209,11 +209,11 @@ def _mockup_jobs(assets, palette):
         ("business_cards", "An angled three quarter stack of business cards in the darkest brand color with one light card fanned on top, the light logo FLAT PRINTED at modest size on the dark cards (no emboss, no letterpress, every letter visible), soft directional shadow, studio flat lay.", [logo_w], "1536x1024", False),
         ("mug",           "A white ceramic mug, front view, the logo printed centered on the visible face, entire logo fully visible with clear space on both sides, not touching the handle, curving naturally with the ceramic, soft studio shadow, light background tinted with the palest brand color.", [logo], "1024x1024", False),
         ("tshirt",        "Front of a white t-shirt on an invisible ghost mannequin, no person, empty, the mark embroidered on the chest, soft daylight, pale brand color background.", [mark], "1024x1536", False),
-        ("tote",          "A natural cotton tote bag hanging, front view, the logo printed on the body, soft daylight, pale background.", [logo], "1024x1536", False),
+        ("tote",          "A natural cotton tote bag hanging, front view, the logo printed on the body, the ENTIRE printed logo fully visible inside the frame with generous margin, soft daylight, pale background.", [logo], "1024x1536", False),
         ("app_icon",      "A clean isolated flat app icon reproducing the provided rounded square badge EXACTLY: solid brand color square, symbol centered, NO wordmark, no 3D, no texture, no background plate, no gray tile.", [badge], "1024x1024", True),
         ("notebook",      "A hardcover notebook in the darkest brand color with the light mark foil stamped small, plus a pen, top-down studio flat lay, soft shadow.", [mark_w], "1536x1024", False),
         ("signage",       "A modern office reception wall sign, the logo as crisp CNC cut acrylic letters mounted on a warm light wall, every letterform and counter clean and unmelted, bright daylight, photographic.", [logo], "1536x1024", False),
-        ("billboard",     "A large outdoor billboard by a sunny modern street at daytime, a light panel with the logo centered in its exact flat brand colors, photographic.", [logo], "1536x1024", False),
+        ("billboard",     "A large outdoor billboard by a sunny modern street at daytime, a light panel composed like a real ad: the logo upper center in its exact flat brand colors, an abstract accent color CTA pill shape lower right, a thin accent rule, NO invented words, photographic.", [logo], "1536x1024", False),
     ], pal
 
 
@@ -435,11 +435,13 @@ def job_status(jid):
     return jsonify(ok=True, status=j["status"], done=j["done"], total=j["total"],
                    items=j["items"],
                    download="/api/pack/%s.zip" % jid if done else None,
-                   preview="/api/preview/%s.pdf" % jid if done and j.get("deck") else None)
+                   preview="/api/preview/%s.pdf" % jid if done and j.get("deck") else None,
+                   deck_error=j.get("deck_error"))
 
 
 def _dl_token(jid):
-    return hmac.new((MOYASAR_SK or "dev-secret").encode(), ("full:" + jid).encode(),
+    # never fall back to a guessable key: callers must check MOYASAR_SK first
+    return hmac.new(MOYASAR_SK.encode(), ("full:" + jid).encode(),
                     hashlib.sha256).hexdigest()
 
 
@@ -460,6 +462,8 @@ def pay_verify():
     secret key server side, then mint the full-download token."""
     if not MOYASAR_SK:
         return jsonify(ok=False, error="Payments are not configured."), 503
+    if not _rate_ok(_client_ip(), 20, "v:"):
+        return jsonify(ok=False, error="Too many attempts, wait a minute."), 429
     pid = (request.args.get("payment_id") or "").strip()
     jid = (request.args.get("job") or "").strip()
     if not re.match(r"^[\w-]{8,64}$", pid) or not re.match(r"^[0-9a-f]{32}$", jid):
@@ -483,6 +487,8 @@ def pay_verify():
 
 @app.get("/api/full/<jid>.pdf")
 def full_pdf(jid):
+    if not MOYASAR_SK:
+        abort(503)  # paywall unconfigured must never mean free
     if not re.match(r"^[0-9a-f]{32}$", jid):
         abort(404)
     t = request.args.get("t", "")
