@@ -25,11 +25,12 @@ Money guards: quality medium, max 8 images per job, 4 jobs per IP per hour.
 Needs OPENAI_API_KEY in env (gpt-image-1). PIL for extraction/compositing.
 """
 import os, io, re, json, uuid, base64, tempfile, time, threading, zipfile, mimetypes
-import urllib.request, ssl
+import urllib.request, ssl, hmac, hashlib
 from collections import deque
 from flask import Flask, request, jsonify, send_file, abort
 from PIL import Image, UnidentifiedImageError
 import process_logo
+import deck_builder
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload cap
@@ -43,6 +44,8 @@ PREVIEW_ORDER = ["logo", "logo_white", "mark", "mark_white", "app_badge"]
 API_KEY = os.environ.get("OPENAI_API_KEY")
 MODEL = os.environ.get("IMAGE_MODEL", "gpt-image-1")
 QUALITY = os.environ.get("IMAGE_QUALITY", "medium")
+MOYASAR_SK = os.environ.get("MOYASAR_SK")            # secret key, payment verification
+PRICE_HALALAS = int(os.environ.get("PRICE_HALALAS", "3500"))   # 35 SAR
 MAX_JOB_IMAGES = 8
 RATE_LIMIT = 4            # generate jobs per IP
 EXTRACT_LIMIT = 20        # extract calls per IP (cheaper, but disk+CPU)
@@ -240,7 +243,14 @@ def _run_logo_job(jid, assets, palette, name):
                     dst.write(src.read())
             except OSError:
                 pass
+        # build the guideline document: free watermarked preview + paid full deck.
+        # full.pdf must NOT land in the free kit zip, so zip first, then build.
         _zip_job(jid)
+        try:
+            deck_builder.build_deck(job["dir"], name, palette)
+            job["deck"] = True
+        except Exception as e:
+            job["deck_error"] = repr(e)[:160]
     finally:
         job["status"] = "done"
 
@@ -421,8 +431,68 @@ def job_status(jid):
     j = jobs.get(jid)
     if not j:
         abort(404)
+    done = j["status"] == "done"
     return jsonify(ok=True, status=j["status"], done=j["done"], total=j["total"],
-                   items=j["items"], download="/api/pack/%s.zip" % jid if j["status"] == "done" else None)
+                   items=j["items"],
+                   download="/api/pack/%s.zip" % jid if done else None,
+                   preview="/api/preview/%s.pdf" % jid if done and j.get("deck") else None)
+
+
+def _dl_token(jid):
+    return hmac.new((MOYASAR_SK or "dev-secret").encode(), ("full:" + jid).encode(),
+                    hashlib.sha256).hexdigest()
+
+
+@app.get("/api/preview/<jid>.pdf")
+def preview_pdf(jid):
+    if not re.match(r"^[0-9a-f]{32}$", jid):
+        abort(404)
+    p = os.path.join(DATA_DIR, jid, "preview.pdf")
+    if not os.path.exists(p):
+        abort(404)
+    return send_file(p, mimetype="application/pdf", as_attachment=True,
+                     download_name="brand-guideline-preview.pdf")
+
+
+@app.get("/api/pay/verify")
+def pay_verify():
+    """Client returns from Moyasar with ?payment_id=..&job=.. — verify with the
+    secret key server side, then mint the full-download token."""
+    if not MOYASAR_SK:
+        return jsonify(ok=False, error="Payments are not configured."), 503
+    pid = (request.args.get("payment_id") or "").strip()
+    jid = (request.args.get("job") or "").strip()
+    if not re.match(r"^[\w-]{8,64}$", pid) or not re.match(r"^[0-9a-f]{32}$", jid):
+        return jsonify(ok=False, error="Bad request."), 400
+    try:
+        req = urllib.request.Request(
+            "https://api.moyasar.com/v1/payments/" + pid,
+            headers={"Authorization": "Basic " + base64.b64encode((MOYASAR_SK + ":").encode()).decode()})
+        pay = json.load(urllib.request.urlopen(req, context=CTX, timeout=30))
+    except Exception:
+        return jsonify(ok=False, error="Could not verify the payment, try again."), 502
+    meta = pay.get("metadata") or {}
+    if pay.get("status") != "paid":
+        return jsonify(ok=False, error="Payment not completed (status: %s)." % pay.get("status")), 402
+    if pay.get("amount") != PRICE_HALALAS or pay.get("currency") != "SAR":
+        return jsonify(ok=False, error="Payment amount mismatch."), 402
+    if meta.get("job_id") != jid:
+        return jsonify(ok=False, error="Payment does not match this document."), 402
+    return jsonify(ok=True, url="/api/full/%s.pdf?t=%s" % (jid, _dl_token(jid)))
+
+
+@app.get("/api/full/<jid>.pdf")
+def full_pdf(jid):
+    if not re.match(r"^[0-9a-f]{32}$", jid):
+        abort(404)
+    t = request.args.get("t", "")
+    if not hmac.compare_digest(t, _dl_token(jid)):
+        abort(403)
+    p = os.path.join(DATA_DIR, jid, "full.pdf")
+    if not os.path.exists(p):
+        abort(404)
+    return send_file(p, mimetype="application/pdf", as_attachment=True,
+                     download_name="brand-guideline.pdf")
 
 
 @app.get("/api/file/<jid>/<name>")

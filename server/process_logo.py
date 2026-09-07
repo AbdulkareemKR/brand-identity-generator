@@ -83,11 +83,20 @@ def column_runs(mask, gap=6):
 
 def recolor_white(im):
     px = im.load(); w, h = im.size
+    # does the source carry real transparency? sample alpha
+    a_min = min(px[x, y][3] for x in range(0, w, 4) for y in range(0, h, 4))
+    has_alpha = a_min < 250
     out = Image.new("RGBA", (w, h), (0, 0, 0, 0)); op = out.load()
     for y in range(h):
         for x in range(w):
             r, g, b, a = px[x, y]
-            op[x, y] = (255, 255, 255, a if a > 0 else (0 if (r + g + b) / 3 > 245 else 255))
+            if has_alpha:
+                na = a
+            else:
+                # fully opaque source (white paper background): white pixels become
+                # transparent, ink pixels become the white mark
+                na = 0 if (r + g + b) / 3 > 245 else 255
+            op[x, y] = (255, 255, 255, na)
     return out
 
 

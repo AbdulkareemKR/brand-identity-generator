@@ -284,6 +284,7 @@ footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;ov
   <details><summary>The palette looks wrong. What now?</summary><p>Click any swatch to adjust it, or remove swatches that came from anti aliasing noise. The confirm step exists exactly for this.</p></details>
   <details><summary>Can it do Arabic brands?</summary><p>Yes. The extraction is script agnostic and the full skill builds complete RTL Arabic decks. Wordmarks with Arabic letters are composited from your real PNG, never redrawn by AI.</p></details>
   <details><summary>What powers the mockups?</summary><p>gpt-image-1 image edits with your exact mark passed as a reference at high input fidelity, so the letters survive. Generation is rate limited to keep the service free.</p></details>
+  <details><summary>What costs money and what is free?</summary><p>Everything you see is free: extraction, the asset pack, the mockup kit, and a watermarked preview of your guideline document. The complete guideline PDF, every page and no watermark, costs 35 SAR, paid securely through Moyasar. We never see your card details.</p></details>
 </section></div>
 
 <footer>
@@ -513,15 +514,89 @@ function pollDead(msg){
 function showKit(j){
   const good=j.items.filter(i=>!i.error);
   let g=good.map(i=>`<figure><img src="${i.url}" alt="${esc(i.name)}" onclick="lb('${i.url}')"><figcaption>${esc(i.name).replace(/_/g," ")}</figcaption></figure>`).join("");
+  const deck=j.preview?`
+    <div style="margin-top:26px;border:1.5px solid var(--line);border-radius:16px;padding:22px 24px;background:var(--paper)">
+      <b style="font-family:var(--fd);font-size:18px;color:var(--ink)">Your brand guideline document</b>
+      <p style="font-size:14px;color:var(--mut);font-weight:300;margin:6px 0 14px;max-width:62ch">A designed multi page guideline built from this kit: logo suite, proportional color system, typography, and one page per application. Preview it free, unlock the complete document for 35 SAR.</p>
+      <div class="btnrow" style="margin-top:0">
+        <a class="btn ghost" href="${API}${j.preview}">Free preview (PDF)</a>
+        <button class="btn g" onclick="payStage()">Get the full guideline — 35 SAR</button>
+      </div>
+    </div>`:"";
   stage(state.mode==="scratch"?5:4,"Your brand kit is ready","done",`
     <div class="gal">${g}</div>
+    ${deck}
     <div class="btnrow">
-      <a class="btn g" href="${API}/pack/${state.job}.zip">Download the kit (zip)</a>
+      <a class="btn t" href="${API}/pack/${state.job}.zip">Download the kit (zip)</a>
       ${state.pack?`<a class="btn ghost" href="${API}/pack/${state.pack}.zip">Assets pack only</a>`:""}
       <button class="btn ghost" onclick="location.reload()">New brand</button>
     </div>
-    <p class="hint" style="margin-top:16px">Want the full 40 slide guideline deck with stationery, uniforms, stickers and a mascot? <a href="#install">Install the skill</a> and run it with this kit.</p>`);
+    <p class="hint" style="margin-top:16px">Want the full 40 slide agency deck with stationery, uniforms, stickers and a mascot? <a href="#install">Install the skill</a> and run it with this kit.</p>`);
 }
+
+/* ---------- payment (Moyasar) ---------- */
+const MOYASAR_PK="pk_live_xPr54zZp4ABNb8UgB8WNtaKWNcmRG4xWL9gb1giY";
+function loadMoyasar(cb){
+  if(window.Moyasar)return cb();
+  const l=document.createElement("link");l.rel="stylesheet";l.href="https://cdn.moyasar.com/mpf/1.15.0/moyasar.css";document.head.appendChild(l);
+  const s=document.createElement("script");s.src="https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";s.onload=cb;
+  s.onerror=()=>err("Could not load the payment form. Check your connection and retry.");
+  document.head.appendChild(s);
+}
+function payStage(){
+  const job=state.job;
+  stage("﷼","Unlock the full guideline","secure payment",`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,44px)">
+      <div>
+        <b style="font-family:var(--fd);font-size:19px">Full brand guideline — 35 SAR</b>
+        <p style="font-size:14px;color:var(--mut);font-weight:300;margin:8px 0 14px">Complete multi page PDF, no watermark: cover, logo suite, color system, typography, and every application page. Paid securely through Moyasar. The download starts right after payment.</p>
+        <p class="hint">Card payments are processed by Moyasar; we never see your card details.</p>
+      </div>
+      <div><div class="mysr-form"></div></div>
+    </div>
+    <p class="err" id="err"></p>
+    <div class="btnrow"><button class="btn ghost" onclick="location.reload()">← Cancel</button></div>`);
+  loadMoyasar(()=>{
+    Moyasar.init({
+      element:".mysr-form",
+      amount:3500,
+      currency:"SAR",
+      description:"Full brand guideline PDF",
+      publishable_api_key:MOYASAR_PK,
+      callback_url:location.origin+"/?job="+job,
+      methods:["creditcard"],
+      metadata:{job_id:job}
+    });
+  });
+}
+async function handleReturn(){
+  const q=new URLSearchParams(location.search);
+  const pid=q.get("id"), job=q.get("job");
+  if(!pid||!job)return;
+  history.replaceState(null,"","/");
+  stage("﷼","Confirming your payment","",`<p style="font-size:15px;color:var(--mut)">One moment, verifying with the payment provider…</p><p class="err" id="err"></p>`);
+  try{
+    const r=await fetch(`${API}/pay/verify?payment_id=${encodeURIComponent(pid)}&job=${encodeURIComponent(job)}`);
+    const j=await r.json();
+    if(!j.ok){
+      stage("!","Payment not completed","",`
+        <p style="font-size:15px;color:var(--mut);max-width:56ch">${esc(j.error||"The payment could not be verified.")} If you were charged, contact us with your payment reference and we will sort it out.</p>
+        <div class="btnrow"><button class="btn g" onclick="location.reload()">Back to the studio</button></div>`);
+      return;
+    }
+    stage("✓","Paid, thank you","",`
+      <p style="font-size:15px;color:var(--mut);max-width:56ch">Your full brand guideline is downloading. Keep the link if you need it again today; generated files are cleaned up after 24 hours.</p>
+      <div class="btnrow">
+        <a class="btn g" href="${API}${j.url}">Download the full guideline (PDF)</a>
+        <button class="btn ghost" onclick="location.reload()">New brand</button>
+      </div>`);
+    location.href=API+j.url;
+  }catch(e){
+    stage("!","Verification failed","",`<p style="font-size:15px;color:var(--mut)">Could not reach the server. Reload this page to retry; your payment reference is ${esc(pid)}.</p>
+      <div class="btnrow"><button class="btn g" onclick="location.reload()">Retry</button></div>`);
+  }
+}
+handleReturn();
 function showConcepts(j){
   const good=j.items.filter(i=>!i.error);
   state.concepts=good;

@@ -5,3 +5,4 @@ examples/terra/mockups/*.png
 examples/terra/pages/
 examples/terra/gen_terra.py
 __pycache__/
+.env.local
