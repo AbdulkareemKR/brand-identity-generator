@@ -178,8 +178,26 @@ details summary{cursor:pointer;font-weight:600;color:var(--teal);font-size:15.5p
 details summary::after{content:"+";margin-left:auto;color:var(--green);font-weight:800}
 details[open] summary::after{content:"–"}
 details p{margin-top:10px;font-size:14.5px;color:var(--mut);font-weight:300;max-width:70ch}
-footer{padding:36px 0 46px;color:var(--mut);font-size:13.5px;display:flex;gap:18px;flex-wrap:wrap}
-footer a{color:var(--teal)}
+/* footer */
+footer{background:var(--teal);color:#D9C6B2;margin-top:40px;position:relative;overflow:hidden}
+.ftop{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:clamp(24px,5vw,64px);padding:clamp(44px,7vw,72px) 0 30px;position:relative;z-index:1}
+@media(max-width:760px){.ftop{grid-template-columns:1fr}}
+.fbrand .fmark{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.fbrand .fmark i{width:34px;height:34px;border-radius:10px;background:var(--green);display:grid;place-items:center;flex:none}
+.fbrand .fmark svg{width:20px;height:20px}
+.fbrand .fmark b{font-family:var(--fd);font-size:19px;color:#F6EEE3;font-weight:700}
+.fbrand p{font-size:14px;font-weight:300;max-width:38ch;color:#B9A28C}
+.fcol h4{font-family:var(--fd);font-size:15px;color:#F6EEE3;margin-bottom:14px;font-weight:700}
+.fcol a{display:block;text-decoration:none;color:#D9C6B2;font-size:14px;padding:4px 0;transition:.15s}
+.fcol a:hover{color:var(--lime);transform:translateX(3px)}
+.fcmd{margin-top:10px;background:#20150F;border:1px solid #4A362B;border-radius:10px;padding:10px 12px;font-family:ui-monospace,monospace;font-size:11.5px;color:var(--lime);white-space:nowrap;overflow-x:auto;cursor:copy}
+.fcmd:hover{border-color:var(--green)}
+.fbig{font-family:var(--fd);font-weight:900;font-size:clamp(64px,13vw,190px);line-height:.85;color:#3A2A20;user-select:none;white-space:nowrap;padding:0 0 8px;position:relative;z-index:0;letter-spacing:-.02em}
+.fbig em{font-style:normal;color:#43301f}
+.fbot{border-top:1px solid #4A362B;padding:18px 0 24px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:13px;color:#B9A28C;position:relative;z-index:1}
+.fbot a{color:#F6EEE3}
+.fbot .leafline{margin-left:auto;display:flex;align-items:center;gap:8px}
+.fbot .leafline svg{width:15px;height:15px}
 
 /* lightbox */
 #lb{position:fixed;inset:0;background:rgba(32,21,15,.9);display:none;place-items:center;z-index:90;cursor:zoom-out;padding:4vmin}
@@ -270,10 +288,39 @@ footer a{color:var(--teal)}
   <details><summary>What powers the mockups?</summary><p>gpt-image-1 image edits with your exact mark passed as a reference at high input fidelity, so the letters survive. Generation is rate limited to keep the service free.</p></details>
 </section></div>
 
-<footer class="wrap">
-  <span>MIT licensed.</span>
-  <a href="https://github.com/AbdulkareemKR/brand-identity-generator">Source on GitHub</a>
-  <span style="margin-left:auto">Grown with the <a href="https://github.com/AbdulkareemKR/brand-identity-generator">brand-identity skill</a></span>
+<footer>
+  <div class="wrap">
+    <div class="ftop">
+      <div class="fbrand">
+        <div class="fmark">
+          <i><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 82V40M50 40c0-16 11-23 25-23 0 16-11 23-25 23Zm0 14c0-11-9-17-19-17 0 11 9 17 19 17Z" stroke="#F6EEE3" stroke-width="8" fill="none" stroke-linecap="round"/></svg></i>
+          <b>Brand Identity Generator</b>
+        </div>
+        <p>A logo goes in. A working identity comes out. Free, open source, and built to make the output feel designed, never generated.</p>
+      </div>
+      <div class="fcol">
+        <h4>Explore</h4>
+        <a href="#studio">The studio</a>
+        <a href="#how">How it works</a>
+        <a href="https://github.com/AbdulkareemKR/brand-identity-generator/tree/main/examples/terra">Example brand: Terra</a>
+        <a href="https://github.com/AbdulkareemKR/brand-identity-generator">Source on GitHub</a>
+      </div>
+      <div class="fcol">
+        <h4>Take the skill home</h4>
+        <a href="/brand-identity-skill.zip">Download the zip</a>
+        <a href="https://github.com/AbdulkareemKR/brand-identity-generator/blob/main/skill/SKILL.md">Read the skill</a>
+        <div class="fcmd" onclick="copyCmd(this)" title="Click to copy">curl -fsSL brand.sadaorg.com/install.sh | bash</div>
+      </div>
+    </div>
+  </div>
+  <div class="fbig" aria-hidden="true">grow a whole <em>brand</em></div>
+  <div class="wrap">
+    <div class="fbot">
+      <span>MIT licensed, use it for anything.</span>
+      <a href="https://github.com/AbdulkareemKR">By Abdulkareem</a>
+      <span class="leafline"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 82V40M50 40c0-16 11-23 25-23 0 16-11 23-25 23Z" stroke="#C4633C" stroke-width="9" fill="none" stroke-linecap="round"/></svg>every line we draw becomes a brand</span>
+    </div>
+  </div>
 </footer>
 
 <div id="lb" onclick="this.classList.remove('on')"><img id="lbimg" alt=""></div>
